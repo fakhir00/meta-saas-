@@ -11,7 +11,7 @@ export async function POST(request) {
     const { phase, answers, blueprint } = body;
 
     const baseContext = `
-      You are an elite Senior AI Systems Architect & Venture Builder (Meta-SaaS platform).
+      You are an elite Senior AI Systems Architect & Venture Builder (MetaBox platform).
       User profile: 
       - Industry: ${answers[0] || 'Unknown'}
       - Strongest Skill: ${answers[1] || 'Unknown'}

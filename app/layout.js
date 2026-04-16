@@ -3,11 +3,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'MetaSaaS — Your AI Co-Founder | Business-in-a-Box',
-  description: 'Turn your idea into a market-ready SaaS in minutes. AI-powered niche discovery, blueprint generation, and sales automation. Your Business-in-a-Box robot.',
-  keywords: 'SaaS, AI, business builder, no-code, startup, micro-SaaS, co-founder',
+  title: 'MetaBox — Your AI Co-Founder | Business-in-a-Box',
+  description: 'Turn your idea into a market-ready SaaS in minutes. AI-powered niche discovery, blueprint generation, and sales automation with MetaBox.',
+  keywords: 'MetaBox, SaaS, AI, business builder, no-code, startup, micro-SaaS, co-founder',
   openGraph: {
-    title: 'MetaSaaS — Your AI Co-Founder',
+    title: 'MetaBox — Your AI Co-Founder',
     description: 'Turn your idea into a market-ready SaaS in minutes with AI-powered automation.',
     type: 'website',
   },

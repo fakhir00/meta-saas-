@@ -9,11 +9,10 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="brand-logo-wrapper">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="brand-logo">
-               <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-               <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-               <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+               <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="3"/>
+               <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="2.5"/>
             </svg>
-            <h3 className="brand-text">NeuralSaaS</h3>
+            <h3 className="brand-text">MetaBox</h3>
           </div>
           <p className="brand-tagline">The premium Business-in-a-Box co-founder engine.</p>
         </div>
@@ -33,7 +32,7 @@ export default function Footer() {
             <ul className="col-list">
               <li><Link href="/launch" className="col-link">Launch Wizard</Link></li>
               <li><Link href="/dashboard" className="col-link">Live Dashboard</Link></li>
-              <li><Link href="#" className="col-link">Neural Engine</Link></li>
+              <li><Link href="#" className="col-link">MetaBox AI</Link></li>
             </ul>
           </div>
 

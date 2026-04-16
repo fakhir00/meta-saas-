@@ -15,9 +15,25 @@ export default function Home() {
             <h1 className="hero-title">
                What will you <span className="text-gradient-blue font-italic">build</span> today?
             </h1>
-            <p className="hero-subtitle">
-               Create stunning apps & websites by chatting with the Neural Engine.
-            </p>
+             <p className="hero-subtitle">
+                Deploy your vision with MetaBox AI — The ultimate Business-in-a-Box engine.
+             </p>
+             
+             {/* 📟 MetaBox Code Terminal Mockup */}
+             <div className="hero-terminal mx-auto mb-lg">
+                <div className="terminal-header">
+                   <div className="terminal-dots"><span className="dot bg-red"></span><span className="dot bg-yellow"></span><span className="dot bg-green"></span></div>
+                   <div className="terminal-title text-micro">metabox-assembly.sh</div>
+                </div>
+                <div className="terminal-body text-nano">
+                   <div className="terminal-line"><span className="text-blue-400">$</span> metabox init --business-blueprint</div>
+                   <div className="terminal-line text-green">✓ Analyzing industry variables...</div>
+                   <div className="terminal-line text-gray-400">  > Architecture: Micro-SaaS Distributed</div>
+                   <div className="terminal-line text-gray-400">  > Logic Engine: BoxIntelligence v4.2</div>
+                   <div className="terminal-line"><span className="text-blue-400">$</span> metabox deploy --live-url</div>
+                   <div className="terminal-line text-white animate-pulse">■ Assembling components... 84%</div>
+                </div>
+             </div>
 
             <div className="prompt-container">
                <div className="prompt-box">
@@ -43,13 +59,10 @@ export default function Home() {
                   </div>
                </div>
                <div className="import-row text-xs text-gray-500 font-medium">
-                  <span>or import from</span>
-                  <button className="import-badge">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 4a4 4 0 1 1 0 8H8a4 4 0 0 1 4-8zm0 16a4 4 0 0 1-4-4v-4h4a4 4 0 0 1 0 8z"/></svg> Figma
-                  </button>
-                  <button className="import-badge">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg> GitHub
-                  </button>
+                  <span className="flex-row items-center gap-xs">
+                     <span className="dot bg-green"></span> 
+                     System Status: Node Active
+                  </span>
                </div>
             </div>
          </div>
@@ -58,7 +71,7 @@ export default function Home() {
       {/* 🏎️ Design System Carousel */}
       <section className="carousel-section text-center">
          <div className="mb-md">
-            <h2 className="title-bold">Your company's design system, now in NeuralSaaS</h2>
+             <h2 className="title-bold">Your company's design system, now in MetaBox</h2>
          </div>
          
          <div className="carousel-grid">
@@ -128,7 +141,7 @@ export default function Home() {
       <section className="power-grid-container text-center">
          <div className="mb-lg">
             <h2 className="title-bold title-lg mb-sm">Empowering founders <br/>with the <span className="text-white">most powerful AI agents</span></h2>
-            <p className="text-gray-400 text-sm">NeuralSaaS does the heavy lifting for you, so you can focus on <br/>your vision instead of fighting deployment errors.</p>
+            <p className="text-gray-400 text-sm">MetaBox does the heavy lifting for you, so you can focus on <br/>your vision instead of fighting deployment errors.</p>
          </div>
 
          {/* Grid Row 1 */}
@@ -136,7 +149,7 @@ export default function Home() {
             <div className="bento-card relative align-left w-66">
                <div className="relative z-10 p-md">
                   <h3 className="font-bold text-md mb-xs text-white">Always the best, without switching tools</h3>
-                  <p className="text-xs text-gray-400 w-60 lh-relax">NeuralSaaS integrates the frontier coding agents from the top labs directly inside one familiar interface. No more AI anxiety or juggle.</p>
+                  <p className="text-xs text-gray-400 w-60 lh-relax">MetaBox integrates the frontier coding agents from the top labs directly inside one familiar interface. No more AI anxiety or juggle.</p>
                </div>
                
                <div className="ui-mockup-agents">
@@ -157,7 +170,7 @@ export default function Home() {
             <div className="bento-card text-center justify-center flex-col items-center w-33">
                <h2 className="massive-number text-white mb-xs">98%</h2>
                <h3 className="font-semibold text-gray-400 mb-sm">less errors</h3>
-               <p className="text-xs text-gray-500 p-md">NeuralSaaS automatically tests, refactors, and iterates reducing errors so you keep building instead of fixing.</p>
+               <p className="text-xs text-gray-500 p-md">MetaBox automatically tests, refactors, and iterates reducing errors so you keep building instead of fixing.</p>
             </div>
          </div>
          
@@ -165,7 +178,7 @@ export default function Home() {
             <div className="bento-card relative align-left overflow-hidden group w-66 h-40">
                <div className="relative z-10 pt-md pl-md">
                   <h3 className="font-bold text-sm mb-xs text-white">Build big without breaking</h3>
-                  <p className="text-xs text-gray-400 w-60 lh-relax">NeuralSaaS handles projects 1,000 times larger than the average template. Its improved context management handles infinite complexity.</p>
+                  <p className="text-xs text-gray-400 w-60 lh-relax">MetaBox handles projects 1,000 times larger than the average template. Its improved context management handles infinite complexity.</p>
                </div>
                <div className="wireframe-mockup">
                   <div className="wf-left">
@@ -195,7 +208,7 @@ export default function Home() {
       <section className="scaling-section text-center mt-xl">
          <div className="mb-lg">
             <h2 className="title-bold title-lg mb-xs">Everything you need to scale<br/><span className="text-white">Built in.</span></h2>
-            <p className="text-sm text-gray-400">Stop stitching together platforms. Neural Cloud gives you enterprise-grade backend infrastructure including hosting and high-performance databases.</p>
+            <p className="text-sm text-gray-400">Stop stitching together platforms. MetaBox Cloud gives you enterprise-grade backend infrastructure including hosting and high-performance databases.</p>
          </div>
 
          <div className="max-w-5xl flex-row gap-sm h-60">
@@ -250,11 +263,36 @@ export default function Home() {
          </div>
       </section>
 
+      {/* 🧊 Inside the Box (Process Section) */}
+      <section className="process-section text-center pt-xl pb-xl">
+         <div className="mb-lg">
+            <h2 className="title-bold title-lg mb-xs">Inside the <span className="text-white">Box</span></h2>
+            <p className="text-sm text-gray-400">Zero to production in three intelligent stages.</p>
+         </div>
+         <div className="process-flow max-w-5xl mx-auto flex-row gap-lg">
+            <div className="process-step">
+               <div className="step-num">01</div>
+               <h4>Neural Intake</h4>
+               <p>Our BoxIntelligence AI analyzes your variables to blueprint a custom architecture specific to your industry.</p>
+            </div>
+            <div className="process-step">
+               <div className="step-num">02</div>
+               <h4>Rapid Assembly</h4>
+               <p>MetaBox assembles the frontend, backend, and logic engines in parallel, ensuring perfect connectivity.</p>
+            </div>
+            <div className="process-step">
+               <div className="step-num">03</div>
+               <h4>Autonomous GTM</h4>
+               <p>Deploy a live SaaS along with custom sales scripts and market-ready GTM strategies built-in.</p>
+            </div>
+         </div>
+      </section>
+
       {/* ⚡ Superpowers Persona Grid */}
       <section className="superpowers-section text-center pt-xl pb-xl mt-lg">
          <div className="mb-lg relative z-10">
             <h2 className="font-semibold text-gray-400 text-md mb-micro">Whatever your role</h2>
-            <h1 className="title-bold title-xl drop-shadow-glow">NeuralSaaS gives you superpowers</h1>
+            <h1 className="title-bold title-xl drop-shadow-glow">MetaBox gives you superpowers</h1>
             <p className="text-micro text-gray-500 mt-xs tracking-wide txt-uppercase">From idea to live product, adapting to the way you work.</p>
          </div>
 
@@ -281,9 +319,9 @@ export default function Home() {
                
                <div className="mock-panel border-box">
                   <p className="text-micro text-gray-300 font-bold mb-xs">Publish your project</p>
-                  <p className="text-nano text-gray-400 flex-row items-center gap-xs mb-micro"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg> https://app.neuralsaas.com/my-app</p>
+                  <p className="text-nano text-gray-400 flex-row items-center gap-xs mb-micro"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg> https://app.metabox.com/my-app</p>
                   <p className="text-nano text-green flex-row items-center gap-xs mb-xs"><div className="dot bg-green"></div> Status: Production Live</p>
-                  <div className="mock-btn font-bold">Update App</div>
+                  <div className="mock-btn font-bold">Update Box</div>
                </div>
             </div>
 
@@ -297,6 +335,70 @@ export default function Home() {
                </svg>
             </div>
             
+         </div>
+      </section>
+
+      {/* 💳 MetaBox Pricing */}
+      <section className="pricing-section text-center pt-xl pb-xl" id="pricing">
+         <div className="mb-lg">
+            <h2 className="title-bold title-lg mb-xs">Choose your <span className="text-white">MetaBox</span></h2>
+            <p className="text-sm text-gray-400">Scale from prototype to enterprise without friction.</p>
+         </div>
+         <div className="pricing-grid">
+            <div className="pricing-card">
+               <h4 className="price-plan">Starter</h4>
+               <div className="price-val">$0</div>
+               <ul className="price-list">
+                  <li>1 Active Box</li>
+                  <li>Draft Deployment</li>
+                  <li>Community Support</li>
+               </ul>
+               <button className="pricing-btn secondary" onClick={() => window.location.href='/launch'}>Start Free</button>
+            </div>
+            <div className="pricing-card featured">
+               <div className="featured-badge">Highly Recommended</div>
+               <h4 className="price-plan">Founder</h4>
+               <div className="price-val">$49<span className="text-xs">/mo</span></div>
+               <ul className="price-list">
+                  <li>10 Active Boxes</li>
+                  <li>Custom Domain Logic</li>
+                  <li>Priority AI Queue</li>
+                  <li>GTM Copy Engine</li>
+               </ul>
+               <button className="pricing-btn primary" onClick={() => window.location.href='/launch'}>Launch Pro</button>
+            </div>
+            <div className="pricing-card">
+               <h4 className="price-plan">Studio</h4>
+               <div className="price-val">$199<span className="text-xs">/mo</span></div>
+               <ul className="price-list">
+                  <li>Unlimited Boxes</li>
+                  <li>Code Export (.zip)</li>
+                  <li>Direct API Access</li>
+                  <li>24/7 Concierge</li>
+               </ul>
+               <button className="pricing-btn secondary" onClick={() => window.location.href='/launch'}>Go Studio</button>
+            </div>
+         </div>
+      </section>
+
+      {/* ❓ Frequent Questions */}
+      <section className="faq-section text-center pt-xl pb-xl">
+         <div className="mb-lg">
+            <h2 className="title-bold title-lg">Inside the Box</h2>
+         </div>
+         <div className="faq-container mx-auto">
+            <div className="faq-item">
+               <h3>What is a "Box"?</h3>
+               <p>A Box is a complete, deployable SaaS asset. It includes your database schema, frontend code, and business logic integrated together.</p>
+            </div>
+            <div className="faq-item">
+                <h3>Do I own the code?</h3>
+                <p>Absolutely. For Pro and Studio tiers, you can export your entire project as a clean React/Node codebase at any time.</p>
+            </div>
+            <div className="faq-item">
+                <h3>Is it really zero-config?</h3>
+                <p>Yes. MetaBox handles the infrastructure. You hit "Build" and your app is live on a secure, optimized sub-domain immediately.</p>
+            </div>
          </div>
       </section>
 
