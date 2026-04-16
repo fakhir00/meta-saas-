@@ -154,7 +154,7 @@ export default function Home() {
                
                <div className="ui-mockup-agents">
                   <div className="agent-row active">
-                     <span className="flex-row items-center gap-xs font-semibold text-orange-400"><div className="agent-icon bg-orange" /> Neural Core V2</span>
+                     <span className="flex-row items-center gap-xs font-semibold text-orange-400"><div className="agent-icon bg-orange" /> MetaBox Core V2</span>
                   </div>
                   <div className="agent-row opacity-50">
                      <span className="flex-row items-center gap-xs font-semibold text-white"><div className="agent-icon bg-gray" /> LogicNet Pro</span>
@@ -272,7 +272,7 @@ export default function Home() {
          <div className="process-flow max-w-5xl mx-auto flex-row gap-lg">
             <div className="process-step">
                <div className="step-num">01</div>
-               <h4>Neural Intake</h4>
+               <h4>Box Intake</h4>
                <p>Our BoxIntelligence AI analyzes your variables to blueprint a custom architecture specific to your industry.</p>
             </div>
             <div className="process-step">
@@ -401,6 +401,58 @@ export default function Home() {
             </div>
          </div>
       </section>
+
+      {/* 🏁 Footer */}
+      <footer className="footer-section">
+         <div className="footer-grid">
+            <div className="footer-brand">
+               <div className="logo-text">MetaBox</div>
+               <p className="footer-bio">The ultimate Business-in-a-Box engine. Deploy your vision with AI-powered precision.</p>
+            </div>
+            <div className="footer-links">
+               <div className="footer-col">
+                  <h5>Product</h5>
+                  <Link href="#pricing">Pricing</Link>
+                  <Link href="/launch">Launch</Link>
+                  <Link href="/dashboard">Dashboard</Link>
+               </div>
+               <div className="footer-col">
+                  <h5>Company</h5>
+                  <Link href="#">About</Link>
+                  <Link href="#">Terms</Link>
+                  <Link href="#">Privacy</Link>
+               </div>
+               <div className="footer-col">
+                  <h5>Social</h5>
+                  <Link href="#">Twitter</Link>
+                  <Link href="#">GitHub</Link>
+                  <Link href="#">Discord</Link>
+               </div>
+            </div>
+         </div>
+         <div className="footer-bottom">
+            <p>&copy; 2026 MetaBox AI. All rights reserved.</p>
+         </div>
+
+         <style jsx>{`
+            .footer-section { width: 100%; border-top: 1px solid rgba(255,255,255,0.05); padding: 5rem 1rem 3rem; margin-top: 5rem; background: #050505; }
+            .footer-grid { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 4rem; }
+            .footer-brand { flex: 2; text-align: left; }
+            .logo-text { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+            .footer-bio { font-size: 0.9rem; color: #6b7280; line-height: 1.6; max-width: 300px; }
+            .footer-links { flex: 3; display: flex; justify-content: space-between; gap: 2rem; }
+            .footer-col h5 { color: #fff; font-size: 0.9rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+            .footer-col { display: flex; flex-direction: column; gap: 0.75rem; }
+            .footer-col a { color: #6b7280; font-size: 0.85rem; text-decoration: none; transition: 0.2s; }
+            .footer-col a:hover { color: #fff; }
+            .footer-bottom { max-width: 1100px; margin: 4rem auto 0; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; }
+            .footer-bottom p { font-size: 0.75rem; color: #4b5563; }
+            @media (max-width: 768px) {
+               .footer-grid { flex-direction: column; gap: 3rem; }
+               .footer-links { flex-direction: row; flex-wrap: wrap; }
+            }
+         `}</style>
+      </footer>
 
       <style jsx>{`
         /* Minimalist Modern Aesthetics */
@@ -589,12 +641,87 @@ export default function Home() {
         .bg-green { background: #22c55e; }
         .mock-btn { background: #2563eb; color: #fff; text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-top: 0.5rem; }
 
-        @media (max-width: 768px) {
-           .bento-grid { flex-direction: column; }
-           .w-66, .w-33 { width: 100%; }
-           .ui-mockup-agents { display: none; }
-           .hero-title { font-size: 2.5rem; }
-        }
+         /* 📟 Hero Terminal Styles */
+         .hero-terminal {
+            max-width: 550px;
+            background: #0d0d0f;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            margin: 2rem auto;
+            text-align: left;
+         }
+         .terminal-header {
+            background: #111;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+         }
+         .terminal-dots { display: flex; gap: 6px; }
+         .terminal-dots .dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
+         .bg-red { background: #ff5f56; } .bg-yellow { background: #ffbd2e; } .bg-green { background: #27c93f; }
+         .terminal-title { color: #666; font-family: monospace; }
+         .terminal-body { padding: 16px; font-family: 'Courier New', Courier, monospace; line-height: 1.6; color: #d1d5db; }
+         .terminal-line { margin-bottom: 4px; }
+         .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+         /* 🧊 Process Step Styles */
+         .process-flow { display: flex; align-items: stretch; position: relative; gap: 1.5rem; margin-top: 3rem; }
+         .process-step { 
+            flex: 1; padding: 2.5rem 2rem; background: #0d0d0f; border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 20px; position: relative; transition: 0.3s;
+         }
+         .process-step:hover { border-color: rgba(59, 130, 246, 0.3); transform: translateY(-5px); }
+         .step-num { font-size: 2.5rem; font-weight: 800; color: rgba(59, 130, 246, 0.1); position: absolute; top: 1rem; right: 1.5rem; }
+         .process-step h4 { color: #fff; font-size: 1.25rem; margin-bottom: 0.75rem; font-weight: 700; }
+         .process-step p { font-size: 0.85rem; color: #9ca3af; line-height: 1.6; }
+
+         /* 💳 Pricing Styles */
+         .pricing-grid { display: flex; gap: 1.5rem; justify-content: center; max-width: 1100px; margin: 3rem auto 0; padding: 0 1rem; }
+         .pricing-card {
+            background: #0d0d0f; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px;
+            padding: 3rem 2rem; flex: 1; text-align: left; position: relative; transition: 0.3s;
+         }
+         .pricing-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.1); }
+         .pricing-card.featured {
+            background: linear-gradient(145deg, #0f172a 0%, #030303 100%);
+            border-color: #3b82f6; box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+         }
+         .featured-badge {
+            position: absolute; top: 1.25rem; right: 1.5rem; background: #3b82f6; color: #fff;
+            padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+         }
+         .price-plan { font-size: 1rem; color: #9ca3af; margin-bottom: 0.5rem; font-weight: 600; }
+         .price-val { font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 2.5rem; }
+         .price-list { list-style: none; padding: 0; margin: 0 0 3rem; display: flex; flex-direction: column; gap: 1rem; }
+         .price-list li { color: #9ca3af; font-size: 0.9rem; display: flex; align-items: center; gap: 12px; }
+         .price-list li::before { content: "✓"; color: #3b82f6; font-weight: 800; font-size: 1.1rem; }
+         .pricing-btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; border: none; }
+         .pricing-btn.primary { background: #3b82f6; color: #fff; }
+         .pricing-btn.secondary { background: #1f2937; color: #fff; }
+         .pricing-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+         /* ❓ FAQ Styles */
+         .faq-container { max-width: 800px; text-align: left; margin: 3rem auto 0; display: flex; flex-direction: column; gap: 1.5rem; }
+         .faq-item { background: #0d0d0f; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; transition: 0.3s; }
+         .faq-item:hover { border-color: rgba(255,255,255,0.1); }
+         .faq-item h3 { font-size: 1.1rem; margin-bottom: 0.75rem; color: #fff; font-weight: 600; }
+         .faq-item p { font-size: 0.9rem; color: #9ca3af; line-height: 1.6; }
+
+         @media (max-width: 1024px) {
+            .pricing-grid, .process-flow { flex-direction: column; align-items: center; }
+            .pricing-card, .process-step { width: 100%; max-width: 500px; }
+         }
+
+         @media (max-width: 768px) {
+            .bento-grid { flex-direction: column; }
+            .w-66, .w-33 { width: 100%; }
+            .ui-mockup-agents { display: none; }
+            .hero-title { font-size: 2.5rem; }
+         }
       `}</style>
     </div>
   );

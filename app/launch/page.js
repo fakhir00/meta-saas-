@@ -216,7 +216,7 @@ export default function LaunchPage() {
             errMsg = data.error.message;
          }
          if (response.status === 503) {
-            errMsg = "The Neural Core is currently experiencing extremely high demand. Please wait a few moments and reconnect.";
+            errMsg = "The MetaBox Core is currently experiencing extremely high demand. Please wait a few moments and reconnect.";
          }
          
          setApiError(errMsg);
@@ -231,7 +231,7 @@ export default function LaunchPage() {
     } catch (err) {
       // Hard network errors (like offline)
       console.error(err);
-      setApiError(err.message || "A network disruption disconnected the Neural Core.");
+      setApiError(err.message || "A network disruption disconnected the MetaBox Core.");
     } finally {
       setIsThinking(false);
     }
@@ -351,7 +351,7 @@ export default function LaunchPage() {
               ))}
               <div className="text-center" style={{ marginTop: '2rem' }}>
                 <button className="btn btn-primary btn-lg shine-effect" style={{ padding: '1.2rem 4rem', fontSize: '1.1rem' }} onClick={handleIntakeSubmit}>
-                  Initialize Neural Analysis
+                  Initialize Box Analysis
                 </button>
               </div>
             </div>

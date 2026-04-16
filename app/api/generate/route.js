@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 const apiKey = 'AQ.Ab8RN6LOuxeSzUOsL8eQGFJ4U2RsLIhRPygyxdXe32KHU-h85Q';
 const ai = new GoogleGenAI({ apiKey: apiKey });
-const NEURAL_MODEL = 'gemini-2.5-flash';
+const METABOX_MODEL = 'gemini-2.5-flash';
 
 export async function POST(request) {
   try {
@@ -137,7 +137,7 @@ export async function POST(request) {
     }
 
     const response = await ai.models.generateContent({
-      model: NEURAL_MODEL,
+      model: METABOX_MODEL,
       contents: prompt,
       config: {
         temperature: 0.7,
