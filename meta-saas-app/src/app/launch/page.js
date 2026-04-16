@@ -1,219 +1,88 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
-
-/* ---- AI Simulation Engine ---- */
-const AI_RESPONSES = {
-  intake: {
-    analysis: (answers) => {
-      const industry = answers[0] || 'technology';
-      const skill = answers[1] || 'operations management';
-      return {
-        founderFit: `Based on your background in **${industry}** and strengths in **${skill}**, you have a strong "Founder-Market Fit" for B2B operational tools. Your domain knowledge gives you an unfair advantage in understanding customer pain points that generic founders miss.`,
-        pains: [
-          {
-            title: `${industry} Client Onboarding Bottleneck`,
-            desc: `Small ${industry} businesses waste 8-12 hours/week on manual client intake, document collection, and follow-ups. This costs an average of $2,400/month in lost productivity.`,
-            severity: 'Critical',
-            revenue: '$28,800/year lost per business',
-          },
-          {
-            title: `${industry} Reporting & Analytics Gap`,
-            desc: `65% of small ${industry} firms rely on spreadsheets for client reporting, leading to errors and 4+ hours of weekly manual work. Clients churn when they can't see ROI.`,
-            severity: 'High',
-            revenue: '$18,000/year lost per business',
-          },
-          {
-            title: `${industry} Lead Follow-up Decay`,
-            desc: `78% of ${industry} leads go cold within 48 hours due to lack of automated follow-up sequences. Each lost lead costs ~$500 in acquisition spend.`,
-            severity: 'High',
-            revenue: '$24,000/year lost per business',
-          },
-        ],
-        recommendation: `We recommend targeting **"${industry} Client Onboarding Automation"** — it has the highest severity, clearest ROI, and the most urgent buyer intent. Businesses are actively losing money every day they don't solve this.`,
-      };
-    },
-  },
-  blueprint: (answers) => {
-    const industry = answers[0] || 'technology';
-    return {
-      name: `${industry}Flow — Intelligent Client Onboarding`,
-      tagline: 'Turn chaotic client intake into a 5-minute automated workflow',
-      architecture: {
-        frontend: 'React + Next.js (App Router)',
-        backend: 'Node.js + Express API',
-        database: 'PostgreSQL with Prisma ORM',
-        auth: 'NextAuth.js + JWT tokens',
-        hosting: 'Vercel (Frontend) + Railway (Backend)',
-        storage: 'AWS S3 for documents',
-      },
-      coreFeatures: [
-        'Smart intake forms with conditional logic',
-        'Automated document collection & reminders',
-        'Client portal with progress tracking',
-        'E-signature integration',
-        'Automated welcome email sequences',
-        'Dashboard with onboarding analytics',
-      ],
-      security: [
-        'AES-256 encryption at rest',
-        'TLS 1.3 in transit',
-        'Rate limiting: 100 req/min per user',
-        'RBAC with role-based permissions',
-        'SOC 2 compliant architecture',
-        'Automated backups every 6 hours',
-      ],
-      mvpTimeline: '4-6 weeks',
-      estimatedCost: '$2,400 total (vs $180,000 traditional)',
-    };
-  },
-  aiLogic: (answers) => {
-    const industry = answers[0] || 'technology';
-    return {
-      systemPrompt: `You are an intelligent onboarding assistant for ${industry} businesses. Your role is to guide new clients through a seamless intake process. You must:\n1. Collect required information in a conversational manner\n2. Validate data formats (email, phone, addresses)\n3. Flag missing documents and send automated reminders\n4. Categorize clients by service tier and priority\n5. Generate personalized welcome messages\n6. Escalate complex cases to human operators\n\nTone: Professional, warm, and efficient. Never use jargon the client won't understand.`,
-      jsonSchema: JSON.stringify({
-        clientIntake: {
-          type: 'object',
-          required: ['business_name', 'contact_email', 'service_tier'],
-          properties: {
-            business_name: { type: 'string', maxLength: 200 },
-            contact_email: { type: 'string', format: 'email' },
-            contact_phone: { type: 'string', pattern: '^\\+?[1-9]\\d{1,14}$' },
-            service_tier: { type: 'string', enum: ['starter', 'growth', 'enterprise'] },
-            onboarding_priority: { type: 'string', enum: ['standard', 'expedited', 'vip'] },
-            documents_required: {
-              type: 'array',
-              items: { type: 'string' },
-            },
-            notes: { type: 'string', maxLength: 2000 },
-          },
-        },
-      }, null, 2),
-      agentLogic: [
-        { step: 1, action: 'INTAKE_FORM_SUBMIT', handler: 'validateAndStore()', next: 'step2' },
-        { step: 2, action: 'DOCUMENT_CHECK', handler: 'checkRequiredDocs()', next: 'step3|waitForDocs' },
-        { step: 3, action: 'CLIENT_CATEGORIZE', handler: 'classifyByTier()', next: 'step4' },
-        { step: 4, action: 'WELCOME_SEQUENCE', handler: 'triggerEmailChain()', next: 'step5' },
-        { step: 5, action: 'DASHBOARD_UPDATE', handler: 'syncToDashboard()', next: 'complete' },
-      ],
-      dashboardWidgets: [
-        { name: 'Active Onboardings', type: 'counter', source: 'onboarding.active' },
-        { name: 'Avg. Completion Time', type: 'gauge', source: 'onboarding.avg_time' },
-        { name: 'Document Completion Rate', type: 'progress', source: 'docs.completion_rate' },
-        { name: 'Client Satisfaction', type: 'rating', source: 'feedback.avg_score' },
-      ],
-    };
-  },
-  sales: (answers) => {
-    const industry = answers[0] || 'technology';
-    return {
-      idealCustomer: {
-        size: '5-50 employees',
-        role: 'Operations Manager / Founder',
-        pain: 'Spending 10+ hrs/week on manual onboarding',
-        budget: '$99-299/month',
-        channel: 'LinkedIn + Cold Email',
-      },
-      emailTemplate: `Subject: Cutting your ${industry} onboarding time by 80%\n\nHi [First Name],\n\nI noticed [Company] is growing fast — congrats! With growth comes onboarding chaos.\n\nWe built a tool specifically for ${industry} businesses that turns a 2-hour client intake into a 5-minute automated flow.\n\nOne of our early customers, [Similar Company], reduced their onboarding time from 12 hours/week to 2 hours/week — saving $2,400/month.\n\nWould you be open to a 15-min call this week to see if it could work for you?\n\nBest,\n[Your Name]`,
-      linkedinScript: `Hey [First Name] 👋\n\nI see you're running ops at [Company] — I know ${industry} onboarding can be a nightmare.\n\nWe just launched a tool that automates the entire client intake process. Thought you might find it interesting since you're dealing with [specific pain].\n\nHappy to share a quick demo if you're curious. No pressure!`,
-      thirtyDayPlan: [
-        { week: 'Week 1', actions: ['Build target list of 200 prospects', 'Set up email sequences (3-touch)', 'Optimize LinkedIn profile', 'Send 50 connection requests/day'] },
-        { week: 'Week 2', actions: ['Launch email campaign batch 1 (100 prospects)', 'Follow up on LinkedIn accepts', 'Post 3 LinkedIn content pieces', 'Book first 5 demo calls'] },
-        { week: 'Week 3', actions: ['Launch email batch 2', 'Refine messaging based on replies', 'Run 5-10 demo calls', 'Send personalized Loom videos to warm leads'] },
-        { week: 'Week 4', actions: ['Close first 3-5 paying customers', 'Collect testimonials', 'Set up referral incentive', 'Begin onboarding customers'] },
-      ],
-      projectedResults: {
-        emailsSent: 200,
-        expectedReplies: '15-25 (8-12%)',
-        expectedDemos: '8-12',
-        expectedCustomers: '3-5',
-        monthlyRevenue: '$297 - $1,495',
-      },
-    };
-  },
-};
+import JSZip from 'jszip';
 
 /* ---- Typing Indicator ---- */
-function TypingIndicator() {
+function TypingIndicator({ text = "Processing..." }) {
   return (
-    <div className="typing-indicator">
-      <span /><span /><span />
+    <div className="typing-indicator-wrapper">
+      <div className="typing-indicator">
+        <span className="dot" /><span className="dot" /><span className="dot" />
+      </div>
+      <p className="typing-text">{text}</p>
       <style jsx>{`
+        .typing-indicator-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          background: rgba(0,0,0,0.4);
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
         .typing-indicator {
           display: flex;
-          gap: 4px;
-          padding: 12px 16px;
+          gap: 6px;
         }
-        .typing-indicator span {
+        .dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: var(--accent-blue);
+          background: var(--accent-cyan);
           animation: typingBounce 1.4s infinite ease-in-out;
         }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(1) { background: var(--accent-blue); }
+        .dot:nth-child(2) { animation-delay: 0.2s; background: var(--accent-cyan); }
+        .dot:nth-child(3) { animation-delay: 0.4s; background: var(--accent-green); }
+        .typing-text {
+          font-family: var(--font-mono);
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+          margin: 0;
+          letter-spacing: 0.5px;
+        }
         @keyframes typingBounce {
-          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-          40% { transform: scale(1); opacity: 1; }
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; box-shadow: 0 0 0 transparent; }
+          40% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px currentColor; }
         }
       `}</style>
     </div>
   );
 }
 
-/* ---- Typewriter for AI responses ---- */
-function AITypewriter({ text, speed = 15, onComplete }) {
-  const [displayed, setDisplayed] = useState('');
-  const indexRef = useRef(0);
-
-  useEffect(() => {
-    indexRef.current = 0;
-    setDisplayed('');
-    const interval = setInterval(() => {
-      indexRef.current++;
-      setDisplayed(text.slice(0, indexRef.current));
-      if (indexRef.current >= text.length) {
-        clearInterval(interval);
-        onComplete && onComplete();
-      }
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-
-  return <span style={{ whiteSpace: 'pre-wrap' }}>{displayed}</span>;
-}
-
 /* ---- Progress Bar ---- */
-function ProgressBar({ currentPhase, totalPhases = 4 }) {
-  const phases = ['Deep Intake', 'Blueprint', 'AI Engineering', 'Sales'];
+function ProgressBar({ currentPhase, totalPhases = 5 }) {
+  const phases = ['Intake Matrix', 'Architecture', 'Logic Synthesis', 'GTM Strategy', 'Compilation'];
   return (
     <div className="progress-bar-container">
       <div className="progress-steps">
         {phases.map((label, i) => (
           <div key={i} className={`progress-step ${i < currentPhase ? 'completed' : ''} ${i === currentPhase ? 'active' : ''}`}>
-            <div className="progress-dot">
+            <div className="progress-dot glow-container">
               {i < currentPhase ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
               ) : (
-                <span>{i + 1}</span>
+                <span>0{i + 1}</span>
               )}
             </div>
             <span className="progress-label">{label}</span>
-            {i < totalPhases - 1 && <div className="progress-line" />}
+            {i < totalPhases - 1 && <div className="progress-line"><div className="progress-line-fill" /></div>}
           </div>
         ))}
       </div>
       <style jsx>{`
         .progress-bar-container {
-          padding: var(--space-xl) 0;
-          margin-bottom: var(--space-xl);
+          padding: 2rem 0 3rem;
+          margin-bottom: 2rem;
+          position: relative;
         }
         .progress-steps {
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 0;
+          justify-content: space-between;
+          position: relative;
+          z-index: 2;
         }
         .progress-step {
           display: flex;
@@ -221,62 +90,73 @@ function ProgressBar({ currentPhase, totalPhases = 4 }) {
           align-items: center;
           position: relative;
           flex: 1;
-          max-width: 180px;
         }
         .progress-dot {
-          width: 40px;
-          height: 40px;
+          width: 45px;
+          height: 45px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 700;
-          font-size: 0.85rem;
-          background: var(--bg-tertiary);
-          border: 2px solid var(--border-glass);
+          font-family: var(--font-mono);
+          font-size: 0.9rem;
+          background: rgba(10, 10, 15, 0.9);
+          border: 2px solid rgba(255,255,255,0.1);
           color: var(--text-tertiary);
-          transition: all var(--transition-base);
-          z-index: 1;
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 3;
+          position: relative;
         }
+        
         .progress-step.active .progress-dot {
-          background: var(--accent-blue);
-          border-color: var(--accent-blue);
-          color: white;
-          animation: pulseGlow 2s ease-in-out infinite;
+          background: rgba(6, 182, 212, 0.1);
+          border-color: var(--accent-cyan);
+          color: var(--accent-cyan);
+          box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.2);
         }
         .progress-step.completed .progress-dot {
-          background: var(--accent-green);
+          background: rgba(16, 185, 129, 0.1);
           border-color: var(--accent-green);
-          color: white;
-        }
-        .progress-label {
-          margin-top: 0.5rem;
-          font-size: 0.78rem;
-          font-weight: 500;
-          color: var(--text-tertiary);
-          text-align: center;
-        }
-        .progress-step.active .progress-label {
-          color: var(--accent-blue);
-          font-weight: 600;
-        }
-        .progress-step.completed .progress-label {
           color: var(--accent-green);
+          box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
         }
+        
+        .progress-label {
+          position: absolute;
+          top: 60px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          text-align: center;
+          white-space: nowrap;
+          transition: color 0.3s;
+        }
+        .progress-step.active .progress-label { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(6,182,212,0.5); }
+        .progress-step.completed .progress-label { color: var(--accent-green); }
+        
         .progress-line {
           position: absolute;
-          top: 20px;
-          left: calc(50% + 24px);
-          width: calc(100% - 48px);
+          top: 22px;
+          left: 50%;
+          width: 100%;
           height: 2px;
-          background: var(--border-glass);
+          background: rgba(255,255,255,0.05);
+          z-index: 1;
         }
-        .progress-step.completed .progress-line {
-          background: var(--accent-green);
+        .progress-line-fill {
+          height: 100%;
+          width: 0%;
+          background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+          transition: width 0.8s ease-in-out;
+          box-shadow: 0 0 10px var(--accent-green);
         }
-        @media (max-width: 600px) {
+        .progress-step.completed .progress-line-fill { width: 100%; }
+
+        @media (max-width: 768px) {
           .progress-label { display: none; }
-          .progress-step { max-width: 80px; }
         }
       `}</style>
     </div>
@@ -286,18 +166,23 @@ function ProgressBar({ currentPhase, totalPhases = 4 }) {
 /* ===== MAIN LAUNCH PAGE ===== */
 export default function LaunchPage() {
   const [phase, setPhase] = useState(0);
-  const [answers, setAnswers] = useState(['', '', '', '', '']);
+  const [answers, setAnswers] = useState(['Technology', 'Software Engineering', '40', '$500', 'Startups needing CRM tools']);
   const [isThinking, setIsThinking] = useState(false);
   const [aiResult, setAiResult] = useState(null);
-  const [selectedPain, setSelectedPain] = useState(null);
+  const [apiError, setApiError] = useState(null);
+  
+  const [savedBlueprint, setSavedBlueprint] = useState(null);
+  const [generatedCode, setGeneratedCode] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const contentRef = useRef(null);
 
   const questions = [
-    { q: 'What industry do you have the most experience or interest in?', placeholder: 'e.g., Healthcare, E-commerce, Real Estate, SaaS, Education...', icon: '🏢' },
-    { q: 'What is your strongest professional skill?', placeholder: 'e.g., Sales, Marketing, Operations, Finance, Engineering...', icon: '💪' },
-    { q: 'How many hours per week can you dedicate to this venture?', placeholder: 'e.g., 10, 20, 40...', icon: '⏰' },
-    { q: 'What is your monthly budget for tools and infrastructure?', placeholder: 'e.g., $50, $200, $500...', icon: '💳' },
-    { q: 'Describe your ideal customer in one sentence.', placeholder: 'e.g., Small business owners who struggle with client management...', icon: '🎯' },
+    { q: 'Target Industry or Sector Context', placeholder: 'e.g., Healthcare, E-commerce, Real Estate...', icon: '1️⃣' },
+    { q: 'Primary Founder Skillset Matrix', placeholder: 'e.g., Sales, Full-stack Engineering, Operations...', icon: '2️⃣' },
+    { q: 'Weekly Bandwidth Allocation (Hrs)', placeholder: 'e.g., 10, 40...', icon: '3️⃣' },
+    { q: 'Infrastructure Operating Budget', placeholder: 'e.g., $50, $500...', icon: '4️⃣' },
+    { q: 'Calculated Ideal Customer Profile', placeholder: 'e.g., Small business owners needing automation...', icon: '5️⃣' },
   ];
 
   const handleAnswer = (index, value) => {
@@ -306,67 +191,150 @@ export default function LaunchPage() {
     setAnswers(newAnswers);
   };
 
-  const simulateAI = (responseGenerator) => {
+  const callPhase = async (targetPhase) => {
     setIsThinking(true);
-    const thinkTime = 2000 + Math.random() * 2000;
-    setTimeout(() => {
-      const result = typeof responseGenerator === 'function' ? responseGenerator(answers) : responseGenerator;
-      setAiResult(result);
+    setAiResult(null);
+    setApiError(null);
+    
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: targetPhase,
+          answers,
+          blueprint: savedBlueprint
+        })
+      });
+
+      const data = await response.json();
+      
+      // If the API failed (e.g. 503 high demand), we handle it smoothly without throwing an error
+      if (!response.ok || data.error) {
+         let errMsg = data.error || 'The core engine failed to respond. Please try again.';
+         if (data.error && typeof data.error === 'object' && data.error.message) {
+            errMsg = data.error.message;
+         }
+         if (response.status === 503) {
+            errMsg = "The Neural Core is currently experiencing extremely high demand. Please wait a few moments and reconnect.";
+         }
+         
+         setApiError(errMsg);
+         setIsThinking(false);
+         return; // exit early without crashing dev server
+      }
+
+      setAiResult(data);
+      if (targetPhase === 'blueprint') setSavedBlueprint(data);
+      if (targetPhase === 'code') setGeneratedCode(data);
+
+    } catch (err) {
+      // Hard network errors (like offline)
+      console.error(err);
+      setApiError(err.message || "A network disruption disconnected the Neural Core.");
+    } finally {
       setIsThinking(false);
-    }, thinkTime);
+    }
   };
 
   const advancePhase = () => {
-    setAiResult(null);
     const nextPhase = phase + 1;
     setPhase(nextPhase);
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    if (nextPhase === 1) {
-      simulateAI(AI_RESPONSES.intake.analysis);
-    } else if (nextPhase === 2) {
-      simulateAI(AI_RESPONSES.blueprint);
-    } else if (nextPhase === 3) {
-      simulateAI(AI_RESPONSES.aiLogic);
+    let apiPhasePhaseMap = {
+      1: 'intake',
+      2: 'blueprint',
+      3: 'aiLogic',
+      4: 'sales',
+      5: 'code'
+    };
+
+    if (apiPhasePhaseMap[nextPhase]) {
+      callPhase(apiPhasePhaseMap[nextPhase]);
     }
   };
 
   const handleIntakeSubmit = () => {
     const filled = answers.filter(a => a.trim().length > 0).length;
     if (filled < 3) {
-      alert('Please answer at least 3 questions to continue.');
+      alert('Please complete the intake matrix parameters.');
       return;
     }
     advancePhase();
   };
 
+  const handleDownloadZip = async () => {
+    if (!generatedCode || !Array.isArray(generatedCode)) return;
+    setIsDownloading(true);
+
+    try {
+      const zip = new JSZip();
+      generatedCode.forEach(file => {
+        zip.file(file.filename, file.content);
+      });
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${savedBlueprint?.name?.replace(/\\s+/g, '-').toLowerCase() || 'saas-system'}-core.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("ZIP Generation Failed:", err);
+      alert("ZIP payload assembly failed.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="launch-page">
-      <div className="launch-bg">
-        <div className="launch-glow launch-glow-1" />
-        <div className="launch-glow launch-glow-2" />
+      <div className="ambient-background">
+         {/* Cyber grid and subtle glowing spheres */}
+         <div className="grid-overlay" />
+         <div className="glow glow-blue" />
+         <div className="glow glow-cyan" />
       </div>
 
-      <div className="container" ref={contentRef}>
+      <div className="container" ref={contentRef} style={{ position: 'relative', zIndex: 10 }}>
         <div className="launch-header text-center animate-fade-in-up">
-          <span className="badge badge-blue">🚀 Launch Wizard</span>
-          <h1 style={{ marginTop: '1rem' }}>Build Your <span className="text-gradient">SaaS</span></h1>
-          <p className="launch-subtitle">Follow the guided 4-phase process. Your AI Co-Founder handles the heavy lifting.</p>
+          <span className="badge badge-cyan" style={{ border: '1px solid var(--accent-cyan)', background: 'rgba(6,182,212,0.1)', backdropFilter: 'blur(10px)', boxShadow: '0 0 20px rgba(6,182,212,0.2)' }}>
+            System Initialized // Node Active
+          </span>
+          <h1 style={{ marginTop: '1.5rem', fontSize: '3rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-1px' }}>
+             Deploy <span className="text-gradient">Sequence</span>
+          </h1>
         </div>
 
         <ProgressBar currentPhase={phase} />
 
+        {/* Global Error Handler */}
+        {apiError && (
+          <div className="glass-card animate-fade-in-up" style={{ borderColor: 'rgba(239, 68, 68, 0.5)', background: 'rgba(239, 68, 68, 0.05)', marginBottom: '2rem', padding: '2rem' }}>
+             <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Processing Fault
+             </h3>
+             <p style={{ margin: '15px 0', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{apiError}</p>
+             <button className="btn btn-secondary" style={{ marginTop: '10px', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444' }} onClick={() => callPhase(Object.values({1:'intake',2:'blueprint',3:'aiLogic',4:'sales',5:'code'})[phase - 1])}>
+               Refresh Data Stream ⟳
+             </button>
+          </div>
+        )}
+
         {/* ===== PHASE 0: INTAKE ===== */}
         {phase === 0 && (
           <div className="phase-content animate-fade-in-up">
-            <div className="phase-title-bar">
-              <span className="phase-badge">Phase 1</span>
-              <h2>Deep Intake & Founder Alignment</h2>
-              <p>Answer these high-leverage questions so our AI can identify your unique strengths and discover profitable operational pains.</p>
+            <div className="phase-title-bar text-center">
+              <h2>Founder Variables Override</h2>
+              <p>Populate the matrix below to generate customized intelligence.</p>
             </div>
             <div className="intake-form">
               {questions.map((q, i) => (
-                <div key={i} className="intake-question glass-card">
+                <div key={i} className="intake-question glass-card hover-lift">
                   <div className="intake-q-header">
                     <span className="intake-q-icon">{q.icon}</span>
                     <label>{q.q}</label>
@@ -374,296 +342,239 @@ export default function LaunchPage() {
                   <input
                     type="text"
                     className="input-field"
+                    style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}
                     placeholder={q.placeholder}
                     value={answers[i]}
                     onChange={(e) => handleAnswer(i, e.target.value)}
                   />
                 </div>
               ))}
-              <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: '1rem' }} onClick={handleIntakeSubmit}>
-                🔍 Analyze My Profile →
-              </button>
+              <div className="text-center" style={{ marginTop: '2rem' }}>
+                <button className="btn btn-primary btn-lg shine-effect" style={{ padding: '1.2rem 4rem', fontSize: '1.1rem' }} onClick={handleIntakeSubmit}>
+                  Initialize Neural Analysis
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* ===== PHASE 1: ANALYSIS RESULTS ===== */}
-        {phase === 1 && (
+        {phase === 1 && !apiError && (
           <div className="phase-content animate-fade-in-up">
-            <div className="phase-title-bar">
-              <span className="phase-badge">Phase 1 Results</span>
-              <h2>Predictive Market Analysis</h2>
-              <p>Your AI Co-Founder identified these opportunities based on your profile.</p>
-            </div>
             {isThinking ? (
-              <div className="glass-card thinking-card">
-                <TypingIndicator />
-                <p>Analyzing your founder profile, scanning market data, and identifying operational pains...</p>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+                 <TypingIndicator text="Compiling strategic market vectors..." />
               </div>
             ) : aiResult && (
               <div className="analysis-results">
-                <div className="glass-card result-card">
-                  <h3>🎯 Founder-Market Fit</h3>
-                  <p>{aiResult.founderFit}</p>
+                <div className="glass-card result-card recommendation-card">
+                  <h3>🎯 Calculated Action Path</h3>
+                  <p className="text-mono" style={{ color: 'var(--accent-cyan)', marginBottom: '1rem', fontSize: '0.8rem' }}>&gt; Primary Directive Found</p>
+                  <p style={{ fontSize: '1.1rem', lineHeight: 1.7 }}>{aiResult.recommendation}</p>
                 </div>
 
-                <h3 style={{ margin: '2rem 0 1rem', textAlign: 'center' }}>Identified Operational Pains</h3>
                 <div className="pains-grid">
-                  {aiResult.pains.map((pain, i) => (
-                    <div
-                      key={i}
-                      className={`glass-card pain-result-card ${selectedPain === i ? 'selected' : ''}`}
-                      onClick={() => setSelectedPain(i)}
-                    >
+                  {aiResult.pains?.map((pain, i) => (
+                    <div key={i} className="glass-card pain-result-card hover-lift">
                       <div className="pain-header">
-                        <span className={`badge ${pain.severity === 'Critical' ? 'badge-orange' : 'badge-blue'}`}>{pain.severity}</span>
+                        <span className={`badge ${pain.severity?.includes('Critical') ? 'badge-orange' : 'badge-blue'}`}>{pain.severity} Risk</span>
                       </div>
-                      <h4>{pain.title}</h4>
+                      <h4 style={{ color: '#fff' }}>{pain.title}</h4>
                       <p>{pain.desc}</p>
-                      <div className="pain-revenue">💰 {pain.revenue}</div>
+                      <div className="pain-revenue bg-black/50 px-3 py-2 rounded-md border border-white/10 mt-3 inline-block">
+                        Proprietary Cost: <span style={{ color: 'var(--accent-green)' }}>{pain.revenue}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="glass-card result-card recommendation">
-                  <h3>🏆 AI Recommendation</h3>
-                  <p>{aiResult.recommendation}</p>
+                <div className="text-center">
+                  <button className="btn btn-primary btn-lg shine-effect mt-8" onClick={advancePhase}>
+                    Construct Architectural Blueprint →
+                  </button>
                 </div>
-
-                <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: '1.5rem' }} onClick={advancePhase}>
-                  📐 Generate Blueprint →
-                </button>
               </div>
             )}
           </div>
         )}
 
         {/* ===== PHASE 2: BLUEPRINT ===== */}
-        {phase === 2 && (
+        {phase === 2 && !apiError && (
           <div className="phase-content animate-fade-in-up">
-            <div className="phase-title-bar">
-              <span className="phase-badge">Phase 2</span>
-              <h2>Anti-Bloat Blueprint</h2>
-              <p>Your strict, no-nonsense technical blueprint. Zero bloat, maximum efficiency.</p>
-            </div>
             {isThinking ? (
-              <div className="glass-card thinking-card">
-                <TypingIndicator />
-                <p>Engineering your optimal architecture, defining security protocols, and calculating costs...</p>
-              </div>
+               <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+                 <TypingIndicator text="Designing anti-bloat logic gates..." />
+               </div>
             ) : aiResult && (
               <div className="blueprint-results">
-                <div className="glass-card blueprint-header-card">
-                  <span className="badge badge-green">Recommended Product</span>
-                  <h2 style={{ margin: '0.75rem 0 0.25rem' }}>{aiResult.name}</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>{aiResult.tagline}</p>
-                  <div className="blueprint-meta">
-                    <span>⏱️ MVP: {aiResult.mvpTimeline}</span>
-                    <span>💰 Cost: {aiResult.estimatedCost}</span>
+                <div className="glass-card text-center mb-8 interactive-border" style={{ padding: '3rem' }}>
+                  <span className="badge badge-cyan mb-4">Core Construct Ready</span>
+                  <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>{aiResult.name}</h2>
+                  <p style={{ color: 'var(--accent-blue)', fontSize: '1.2rem', fontFamily: 'var(--font-mono)' }}>{aiResult.tagline}</p>
+                  <div className="flex justify-center gap-8 mt-6 font-mono text-sm opacity-70">
+                    <span>BUILD_TIME: {aiResult.mvpTimeline}</span>
+                    <span>OVERHEAD: {aiResult.estimatedCost}</span>
                   </div>
                 </div>
 
                 <div className="blueprint-grid">
                   <div className="glass-card">
-                    <h3>🏗️ Technical Architecture</h3>
-                    <div className="tech-stack-list">
-                      {Object.entries(aiResult.architecture).map(([key, val]) => (
-                        <div key={key} className="tech-item">
-                          <span className="tech-label">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                          <span className="tech-value text-mono">{val}</span>
+                    <h3 className="mb-4 text-cyan-400">❖ Stack Matrix</h3>
+                    <div className="flex flex-col gap-3">
+                      {aiResult.architecture && Object.entries(aiResult.architecture).map(([key, val]) => (
+                        <div key={key} className="flex justify-between items-center border-b border-white/5 pb-2">
+                          <span className="uppercase text-xs tracking-wider opacity-60">{key}</span>
+                          <span className="font-mono text-sm text-blue-300">{val}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   <div className="glass-card">
-                    <h3>✨ Core Features (MVP)</h3>
-                    <ul className="feature-list">
-                      {aiResult.coreFeatures.map((f, i) => (
-                        <li key={i}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <h3 className="mb-4 text-green-400">❖ Execution Features</h3>
+                    <ul className="flex flex-col gap-3">
+                      {aiResult.coreFeatures?.map((f, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm opacity-80">
+                          <span className="text-green-500 font-mono mt-1">►</span>
                           {f}
                         </li>
                       ))}
                     </ul>
                   </div>
-
-                  <div className="glass-card" style={{ gridColumn: 'span 2' }}>
-                    <h3>🔒 Security & Scaling Protocols</h3>
-                    <div className="security-grid">
-                      {aiResult.security.map((s, i) => (
-                        <div key={i} className="security-item">
-                          <span className="security-icon">🛡️</span>
-                          <span>{s}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
 
-                <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: '1.5rem' }} onClick={advancePhase}>
-                  ⚙️ Generate AI Logic →
-                </button>
+                <div className="text-center mt-10">
+                  <button className="btn btn-primary btn-lg shine-effect" onClick={advancePhase}>
+                    Compile Generative Logic Core →
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
 
         {/* ===== PHASE 3: AI LOGIC ===== */}
-        {phase === 3 && (
+        {phase === 3 && !apiError && (
           <div className="phase-content animate-fade-in-up">
-            <div className="phase-title-bar">
-              <span className="phase-badge">Phase 3</span>
-              <h2>AI Logic Engineering</h2>
-              <p>System prompts, data schemas, and agentic logic chains generated for your micro-SaaS.</p>
-            </div>
             {isThinking ? (
-              <div className="glass-card thinking-card">
-                <TypingIndicator />
-                <p>Compiling system prompts, generating JSON schemas, and building agentic logic chains...</p>
-              </div>
+               <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+                 <TypingIndicator text="Training specialized system behavior..." />
+               </div>
             ) : aiResult && (
               <div className="ai-logic-results">
+                <div className="glass-card code-card mb-6">
+                  <div className="code-header">
+                    <span className="font-mono text-xs text-blue-400">/sys/core/prompt.sys</span>
+                  </div>
+                  <pre className="code-block text-gray-300">{aiResult.systemPrompt}</pre>
+                </div>
+
                 <div className="glass-card code-card">
                   <div className="code-header">
-                    <span className="code-dot red" /><span className="code-dot yellow" /><span className="code-dot green" />
-                    <span className="code-title">system_prompt.txt</span>
+                    <span className="font-mono text-xs text-emerald-400">/sys/schema/payload.json</span>
                   </div>
-                  <pre className="code-block">{aiResult.systemPrompt}</pre>
+                  <pre className="code-block text-emerald-200/70">{typeof aiResult.jsonSchema === 'string' ? aiResult.jsonSchema : JSON.stringify(aiResult.jsonSchema, null, 2)}</pre>
                 </div>
 
-                <div className="glass-card code-card">
-                  <div className="code-header">
-                    <span className="code-dot red" /><span className="code-dot yellow" /><span className="code-dot green" />
-                    <span className="code-title">intake_schema.json</span>
-                  </div>
-                  <pre className="code-block">{aiResult.jsonSchema}</pre>
+                <div className="text-center mt-10">
+                  <button className="btn btn-primary btn-lg shine-effect" onClick={advancePhase}>
+                    Initialize Market Distribution Protocol →
+                  </button>
                 </div>
-
-                <div className="glass-card">
-                  <h3>🔄 Agentic Logic Pipeline</h3>
-                  <div className="logic-pipeline">
-                    {aiResult.agentLogic.map((step, i) => (
-                      <div key={i} className="logic-step">
-                        <div className="logic-step-num">{step.step}</div>
-                        <div className="logic-step-content">
-                          <span className="badge badge-blue">{step.action}</span>
-                          <code className="text-mono">{step.handler}</code>
-                          <span className="logic-arrow">→ {step.next}</span>
-                        </div>
-                        {i < aiResult.agentLogic.length - 1 && <div className="logic-connector" />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="glass-card">
-                  <h3>📊 Dashboard Widgets</h3>
-                  <div className="widgets-grid">
-                    {aiResult.dashboardWidgets.map((w, i) => (
-                      <div key={i} className="widget-preview">
-                        <span className="widget-type">{w.type}</span>
-                        <h4>{w.name}</h4>
-                        <code className="text-mono" style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{w.source}</code>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: '1.5rem' }} onClick={() => {
-                  setAiResult(null);
-                  setPhase(4);
-                  contentRef.current?.scrollIntoView({ behavior: 'smooth' });
-                  simulateAI(AI_RESPONSES.sales);
-                }}>
-                  🚀 Generate Sales Playbook →
-                </button>
               </div>
             )}
           </div>
         )}
 
         {/* ===== PHASE 4: SALES ===== */}
-        {phase === 4 && (
+        {phase === 4 && !apiError && (
           <div className="phase-content animate-fade-in-up">
-            <div className="phase-title-bar">
-              <span className="phase-badge" style={{ background: 'rgba(16,185,129,0.15)', color: 'var(--accent-green)', borderColor: 'rgba(16,185,129,0.25)' }}>Phase 4 — Final</span>
-              <h2>Sales Automation & Go-to-Market</h2>
-              <p>Your complete outreach arsenal and 30-day plan to secure your first 5 paying customers.</p>
-            </div>
             {isThinking ? (
-              <div className="glass-card thinking-card">
-                <TypingIndicator />
-                <p>Building your outreach arsenal, crafting scripts, and designing the 30-day playbook...</p>
-              </div>
+               <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+                 <TypingIndicator text="Calculating outreach permutations..." />
+               </div>
             ) : aiResult && (
               <div className="sales-results">
-                <div className="glass-card">
-                  <h3>🎯 Ideal Customer Profile</h3>
-                  <div className="icp-grid">
-                    {Object.entries(aiResult.idealCustomer).map(([k, v]) => (
-                      <div key={k} className="icp-item">
-                        <span className="icp-label">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        <span className="icp-value">{v}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="glass-card mb-6 border-l-4 border-l-blue-500">
+                   <h3 className="mb-4">Target Node Structure</h3>
+                   <div className="grid grid-cols-2 gap-4 font-mono text-sm">
+                      {Object.entries(aiResult.idealCustomer || {}).map(([key, val]) => (
+                         <div key={key}>
+                            <span className="block opacity-50 mb-1">{key}</span>
+                            <span className="text-blue-300">{val}</span>
+                         </div>
+                      ))}
+                   </div>
                 </div>
-
-                <div className="scripts-grid">
+                
+                <div className="scripts-grid grid-cols-2 gap-6 mt-6">
                   <div className="glass-card code-card">
-                    <div className="code-header">
-                      <span className="code-dot red" /><span className="code-dot yellow" /><span className="code-dot green" />
-                      <span className="code-title">📧 Email Outreach Script</span>
-                    </div>
-                    <pre className="code-block" style={{ fontSize: '0.85rem' }}>{aiResult.emailTemplate}</pre>
+                    <div className="code-header"><span className="font-mono text-xs text-orange-400">outreach/mail_template.txt</span></div>
+                    <pre className="code-block text-xs">{aiResult.emailTemplate}</pre>
                   </div>
-
                   <div className="glass-card code-card">
-                    <div className="code-header">
-                      <span className="code-dot red" /><span className="code-dot yellow" /><span className="code-dot green" />
-                      <span className="code-title">💼 LinkedIn DM Script</span>
-                    </div>
-                    <pre className="code-block" style={{ fontSize: '0.85rem' }}>{aiResult.linkedinScript}</pre>
+                    <div className="code-header"><span className="font-mono text-xs text-cyan-400">outreach/social_template.txt</span></div>
+                    <pre className="code-block text-xs">{aiResult.linkedinScript}</pre>
                   </div>
                 </div>
 
-                <div className="glass-card">
-                  <h3>📅 30-Day Outreach Schedule</h3>
-                  <div className="schedule-grid">
-                    {aiResult.thirtyDayPlan.map((week, i) => (
-                      <div key={i} className="schedule-week">
-                        <div className="week-label">{week.week}</div>
-                        <ul>
-                          {week.actions.map((a, j) => (
-                            <li key={j}>{a}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
+                <div className="text-center mt-12">
+                  <button className="btn btn-primary btn-lg shine-effect py-5 px-10 text-lg shadow-[0_0_40px_rgba(16,185,129,0.4)] border border-green-500/50" onClick={advancePhase}>
+                    ⚡ Execute Final Node Compile (Download Code)
+                  </button>
                 </div>
+              </div>
+            )}
+          </div>
+        )}
 
-                <div className="glass-card">
-                  <h3>📈 Projected Results (30 Days)</h3>
-                  <div className="results-grid">
-                    {Object.entries(aiResult.projectedResults).map(([k, v]) => (
-                      <div key={k} className="result-metric">
-                        <span className="metric-value">{v}</span>
-                        <span className="metric-label">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
-                      </div>
-                    ))}
-                  </div>
+        {/* ===== PHASE 5: CODE GENERATION / DOWNLOAD ===== */}
+        {phase === 5 && !apiError && (
+          <div className="phase-content animate-fade-in-up">
+            {isThinking ? (
+              <div className="glass-card" style={{ padding: '5rem 2rem', border: '1px solid var(--accent-cyan)', background: 'rgba(6,182,212,0.05)', boxShadow: '0 0 30px rgba(6,182,212,0.1)'}}>
+                <div className="flex justify-center mb-8 scale-150">
+                  <TypingIndicator text="" />
                 </div>
-
-                <div className="glass-card completion-card text-center">
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-                  <h2>Your SaaS Plan is Complete!</h2>
-                  <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
-                    You now have a complete blueprint, AI logic, and sales playbook. Head to your Strategic Director Dashboard to manage everything.
+                <h3 className="text-center text-2xl text-cyan-400 font-mono uppercase tracking-widest">Building Application Instance</h3>
+                <p className="text-center mt-4 text-gray-400 opacity-80">Writing binary logic and containerizing scripts. Please stand by...</p>
+              </div>
+            ) : aiResult && (
+              <div className="code-results">
+                <div className="glass-card text-center mb-10 overflow-hidden relative border-t-2 border-t-green-500 shadow-[0_10px_50px_rgba(16,185,129,0.3)]">
+                  <div className="absolute inset-0 bg-green-500/5 mix-blend-overlay"></div>
+                  <div className="text-6xl mb-4">📦</div>
+                  <h2 className="text-4xl font-bold mb-4 text-green-500 drop-shadow-md">System Synthesis Complete</h2>
+                  <p className="text-gray-300 mb-8 max-w-xl mx-auto text-lg">
+                    The core engine has successfully generated {aiResult.length || 0} secure files to initialize your platform. Extract this archive into your local directory.
                   </p>
-                  <Link href="/dashboard" className="btn btn-primary btn-lg">
-                    Open Dashboard →
+                  
+                  <button onClick={handleDownloadZip} className="btn btn-primary btn-lg shine-effect px-12 py-5 shadow-[0_0_40px_rgba(59,130,246,0.6)] text-xl font-bold" disabled={isDownloading}>
+                    {isDownloading ? 'Compressing Package...' : '⬇️ Download Compiled Source (.zip)'}
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-lg font-mono text-gray-300 tracking-wider uppercase border-b border-white/10 pb-2 inline-block">Directory Blueprint:</h3>
+                </div>
+
+                <div className="files-grid grid gap-6">
+                  {Array.isArray(aiResult) && aiResult.map((file, i) => (
+                    <div key={i} className="glass-card code-card" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="code-header bg-[#0a0a0f] border-b border-white/5 py-3 px-4 flex gap-2 items-center">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                        <span className="font-mono text-sm text-cyan-300 tracking-wider">{file.filename}</span>
+                      </div>
+                      <pre className="code-block max-h-[300px] overflow-y-auto font-mono text-[11px] p-6 bg-[#040406] text-gray-300">
+                        {file.content}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-12 text-center">
+                  <Link href="/dashboard" className="inline-block py-4 px-8 text-sm uppercase tracking-widest text-cyan-500 font-bold hover:text-cyan-400 hover:tracking-[0.15em] transition-all duration-300 border border-cyan-500/30 rounded-full hover:bg-cyan-500/10">
+                    Access System Dashboard →
                   </Link>
                 </div>
               </div>
@@ -674,455 +585,51 @@ export default function LaunchPage() {
 
       <style jsx>{`
         .launch-page {
-          position: relative;
           min-height: 100vh;
-          padding: var(--space-2xl) 0 var(--space-4xl);
-        }
-        .launch-bg {
-          position: fixed;
-          inset: 0;
-          z-index: -1;
-          pointer-events: none;
-        }
-        .launch-glow {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(150px);
-        }
-        .launch-glow-1 {
-          width: 500px; height: 500px;
-          background: rgba(99, 102, 241, 0.08);
-          top: 10%; right: -10%;
-        }
-        .launch-glow-2 {
-          width: 400px; height: 400px;
-          background: rgba(6, 182, 212, 0.06);
-          bottom: 20%; left: -10%;
-        }
-        .launch-header {
-          margin-bottom: var(--space-md);
-        }
-        .launch-subtitle {
-          color: var(--text-tertiary);
-          font-size: 1.05rem;
-          margin-top: 0.5rem;
-        }
-
-        .phase-content {
-          max-width: 900px;
-          margin: 0 auto;
-        }
-        .phase-title-bar {
-          margin-bottom: var(--space-xl);
-        }
-        .phase-title-bar h2 {
-          margin: 0.75rem 0 0.4rem;
-        }
-        .phase-title-bar p {
-          color: var(--text-tertiary);
-        }
-        .phase-badge {
-          display: inline-block;
-          padding: 0.3rem 0.9rem;
-          font-size: 0.78rem;
-          font-weight: 700;
-          border-radius: var(--radius-full);
-          background: rgba(59, 130, 246, 0.15);
-          color: var(--accent-blue);
-          border: 1px solid rgba(59, 130, 246, 0.25);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        /* Intake */
-        .intake-form {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-md);
-        }
-        .intake-question {
-          padding: var(--space-lg);
-        }
-        .intake-q-header {
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          margin-bottom: 0.75rem;
-        }
-        .intake-q-icon {
-          font-size: 1.3rem;
-        }
-        .intake-q-header label {
-          font-weight: 600;
-          color: var(--text-primary);
-          font-size: 0.95rem;
-        }
-
-        /* Thinking */
-        .thinking-card {
-          display: flex;
-          align-items: center;
-          gap: var(--space-md);
-          padding: var(--space-xl);
-        }
-        .thinking-card p {
-          color: var(--text-secondary);
-          font-style: italic;
-        }
-
-        /* Analysis Results */
-        .result-card {
-          padding: var(--space-xl);
-          margin-bottom: var(--space-lg);
-        }
-        .result-card h3 {
-          margin-bottom: 0.75rem;
-        }
-        .result-card p {
-          line-height: 1.7;
-        }
-        .recommendation {
-          background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.08));
-          border-color: rgba(16,185,129,0.2);
-        }
-
-        .pains-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: var(--space-md);
-          margin-bottom: var(--space-lg);
-        }
-        .pain-result-card {
-          padding: var(--space-lg);
-          cursor: pointer;
-          transition: all var(--transition-base);
-        }
-        .pain-result-card.selected {
-          border-color: var(--accent-blue);
-          box-shadow: var(--shadow-glow);
-        }
-        .pain-header {
-          margin-bottom: 0.75rem;
-        }
-        .pain-result-card h4 {
-          margin-bottom: 0.5rem;
-          font-size: 1rem;
-        }
-        .pain-result-card p {
-          font-size: 0.88rem;
-          color: var(--text-tertiary);
-          line-height: 1.5;
-          margin-bottom: 0.75rem;
-        }
-        .pain-revenue {
-          font-family: var(--font-mono);
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: var(--accent-orange);
-        }
-
-        /* Blueprint */
-        .blueprint-header-card {
-          padding: var(--space-2xl);
-          text-align: center;
-          margin-bottom: var(--space-xl);
-          background: var(--gradient-card);
-        }
-        .blueprint-meta {
-          display: flex;
-          justify-content: center;
-          gap: var(--space-xl);
-          margin-top: var(--space-md);
-          font-weight: 600;
-          color: var(--text-secondary);
-        }
-        .blueprint-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--space-lg);
-        }
-        .tech-stack-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
-        }
-        .tech-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.5rem 0;
-          border-bottom: 1px solid var(--border-glass);
-        }
-        .tech-label {
-          text-transform: capitalize;
-          color: var(--text-tertiary);
-          font-size: 0.88rem;
-        }
-        .tech-value {
-          color: var(--accent-cyan);
-          font-size: 0.82rem;
-        }
-        .feature-list {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
-        }
-        .feature-list li {
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-        }
-        .security-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.75rem;
-        }
-        .security-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.88rem;
-          color: var(--text-secondary);
-        }
-
-        /* Code Blocks */
-        .code-card {
-          overflow: hidden;
-        }
-        .code-header {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 0.75rem 1rem;
-          background: rgba(0,0,0,0.3);
-          border-bottom: 1px solid var(--border-glass);
-        }
-        .code-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-        }
-        .code-dot.red { background: #ef4444; }
-        .code-dot.yellow { background: #f59e0b; }
-        .code-dot.green { background: #10b981; }
-        .code-title {
-          margin-left: 8px;
-          font-size: 0.82rem;
-          color: var(--text-tertiary);
-          font-family: var(--font-mono);
-        }
-        .code-block {
-          padding: 1.25rem;
-          font-size: 0.82rem;
-          line-height: 1.6;
-          color: var(--text-secondary);
-          overflow-x: auto;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-
-        /* AI Logic */
-        .ai-logic-results {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-lg);
-        }
-        .logic-pipeline {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-        }
-        .logic-step {
-          display: flex;
-          align-items: flex-start;
-          gap: var(--space-md);
-          padding: var(--space-md) 0;
+          padding: 8rem 0 6rem;
           position: relative;
         }
-        .logic-step-num {
-          width: 36px;
-          height: 36px;
-          min-width: 36px;
-          border-radius: 50%;
-          background: var(--bg-tertiary);
-          border: 2px solid var(--accent-blue);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 0.85rem;
-          color: var(--accent-blue);
+        .ambient-background {
+          position: fixed; inset: 0; z-index: 1; pointer-events: none;
         }
-        .logic-step-content {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 0.5rem;
+        .grid-overlay {
+          position: absolute; inset: 0;
+          background-size: 50px 50px;
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+          mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
         }
-        .logic-step-content code {
-          font-size: 0.82rem;
-          color: var(--accent-cyan);
-          background: rgba(6, 182, 212, 0.1);
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
+        .glow {
+          position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
         }
-        .logic-arrow {
-          color: var(--text-tertiary);
-          font-size: 0.82rem;
+        .glow-blue { width: 60vw; height: 60vh; background: var(--accent-blue); top: -20%; right: -20%; }
+        .glow-cyan { width: 50vw; height: 50vh; background: var(--accent-cyan); bottom: -10%; left: -20%; }
+        
+        .phase-content { max-width: 900px; margin: 0 auto; }
+        .phase-title-bar { margin-bottom: 3rem; }
+        .phase-title-bar h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .phase-title-bar p { color: var(--text-tertiary); font-size: 1.1rem; }
+        
+        .intake-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .intake-question { padding: 2rem; transition: transform 0.3s, box-shadow 0.3s; }
+        .intake-question:focus-within { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 1px var(--accent-blue); }
+        .intake-q-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .intake-q-icon { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;}
+        .intake-q-header label { font-size: 1.1rem; font-weight: 500;}
+        
+        .recommendation-card { background: linear-gradient(145deg, rgba(16,185,129,0.05) 0%, rgba(6,182,212,0.1) 100%); border-width: 1px; border-color: rgba(6,182,212,0.3); padding: 3rem;}
+        .pains-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;}
+        .pain-result-card { padding: 2rem; display: flex; flex-direction: column;}
+        
+        .blueprint-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr 1fr;}
+        
+        .interactive-border { position: relative; overflow: hidden;}
+        .interactive-border::before {
+           content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+           background: conic-gradient(from 0deg, transparent 0 340deg, var(--accent-cyan) 360deg);
+           animation: rotateBorder 4s linear infinite; opacity: 0.2;
         }
-        .logic-connector {
-          position: absolute;
-          left: 17px;
-          top: 52px;
-          bottom: -4px;
-          width: 2px;
-          background: var(--border-glass);
-        }
-        .widgets-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: var(--space-md);
-          margin-top: var(--space-md);
-        }
-        .widget-preview {
-          padding: var(--space-md);
-          background: rgba(0,0,0,0.2);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glass);
-        }
-        .widget-type {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          color: var(--accent-purple);
-          font-weight: 600;
-          letter-spacing: 0.08em;
-        }
-        .widget-preview h4 {
-          font-size: 0.9rem;
-          margin: 0.4rem 0;
-        }
-
-        /* Sales */
-        .sales-results {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-lg);
-        }
-        .icp-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: var(--space-md);
-          margin-top: var(--space-md);
-        }
-        .icp-item {
-          padding: var(--space-md);
-          background: rgba(0,0,0,0.2);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glass);
-        }
-        .icp-label {
-          text-transform: capitalize;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-          display: block;
-          margin-bottom: 0.3rem;
-        }
-        .icp-value {
-          font-weight: 600;
-          color: var(--text-primary);
-          font-size: 0.9rem;
-        }
-        .scripts-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--space-lg);
-        }
-        .schedule-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: var(--space-md);
-          margin-top: var(--space-md);
-        }
-        .schedule-week {
-          padding: var(--space-md);
-          background: rgba(0,0,0,0.2);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glass);
-        }
-        .week-label {
-          font-weight: 700;
-          color: var(--accent-blue);
-          font-size: 0.85rem;
-          margin-bottom: 0.6rem;
-        }
-        .schedule-week ul {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-        }
-        .schedule-week li {
-          font-size: 0.82rem;
-          color: var(--text-tertiary);
-          padding-left: 0.8rem;
-          position: relative;
-        }
-        .schedule-week li::before {
-          content: '→';
-          position: absolute;
-          left: 0;
-          color: var(--accent-cyan);
-          font-size: 0.7rem;
-        }
-        .results-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: var(--space-md);
-          margin-top: var(--space-md);
-        }
-        .result-metric {
-          text-align: center;
-          padding: var(--space-md);
-          background: rgba(0,0,0,0.2);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glass);
-        }
-        .metric-value {
-          display: block;
-          font-size: 1.3rem;
-          font-weight: 800;
-          color: var(--accent-green);
-          margin-bottom: 0.3rem;
-        }
-        .metric-label {
-          text-transform: capitalize;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-        }
-        .completion-card {
-          padding: var(--space-2xl);
-          background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08));
-          border-color: rgba(16,185,129,0.2);
-          margin-top: var(--space-lg);
-        }
-
-        @media (max-width: 768px) {
-          .blueprint-grid {
-            grid-template-columns: 1fr;
-          }
-          .blueprint-grid .glass-card:last-child {
-            grid-column: span 1;
-          }
-          .security-grid {
-            grid-template-columns: 1fr;
-          }
-          .scripts-grid {
-            grid-template-columns: 1fr;
-          }
-        }
+        @keyframes rotateBorder { 100% { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

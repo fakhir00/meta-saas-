@@ -1,837 +1,828 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 
-/* ---- Animated Counter ---- */
-function AnimatedCounter({ end, duration = 2000, prefix = '', suffix = '' }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const hasAnimated = useRef(false);
+const ThreeDScene = dynamic(() => import('@/components/ThreeDScene'), { ssr: false });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const startTime = Date.now();
-          const animate = () => {
-            const progress = Math.min((Date.now() - startTime) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(eased * end));
-            if (progress < 1) requestAnimationFrame(animate);
-          };
-          animate();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end, duration]);
+const workflowNodes = [
+  {
+    id: 'research',
+    title: 'Signal Scan',
+    duration: 'Day 1',
+    description: 'Map painful workflows, rank urgency, and lock one high-intent niche.'
+  },
+  {
+    id: 'blueprint',
+    title: 'MVP Blueprint',
+    duration: 'Day 2',
+    description: 'Define strict anti-bloat scope, data model, and one value-delivery flow.'
+  },
+  {
+    id: 'automation',
+    title: 'Automation Core',
+    duration: 'Day 3-5',
+    description: 'Ship AI logic, guardrails, and orchestration scripts for reliable output.'
+  },
+  {
+    id: 'outreach',
+    title: 'Revenue Sprint',
+    duration: 'Week 2',
+    description: 'Launch outreach sequences, track meetings, and close first paid pilots.'
+  }
+];
 
-  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
-}
+const weekRows = [
+  { phase: 'Discovery', owner: 'Founder', task: 'Interview 10 operators', kpi: '3 urgent pain signals', status: 'In Progress' },
+  { phase: 'Product', owner: 'AI Robot', task: 'Generate strict blueprint', kpi: 'MVP scope frozen', status: 'Ready' },
+  { phase: 'Build', owner: 'Tech Lead', task: 'Ship command center UI', kpi: 'Core flow live', status: 'Planned' },
+  { phase: 'Sales', owner: 'Growth', task: 'Run 5-day outbound burst', kpi: '8 qualified calls', status: 'Planned' }
+];
 
-/* ---- Typewriter ---- */
-function TypewriterText({ texts, speed = 60, pause = 2000 }) {
-  const [displayed, setDisplayed] = useState('');
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+const monthRows = [
+  { phase: 'Discovery', owner: 'Founder', task: 'Niche locked + PMF proof', kpi: '1 validated niche', status: 'Done' },
+  { phase: 'Product', owner: 'AI Robot', task: 'AI workflow v1 shipped', kpi: '90% task coverage', status: 'In Progress' },
+  { phase: 'Build', owner: 'Tech Lead', task: 'Dashboard + launch flow', kpi: '< 60 min onboarding', status: 'In Progress' },
+  { phase: 'Sales', owner: 'Growth', task: '30-day outreach engine', kpi: 'First 5 customers', status: 'Planned' }
+];
 
-  useEffect(() => {
-    const current = texts[textIndex];
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayed(current.slice(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-        if (charIndex + 1 === current.length) {
-          setTimeout(() => setIsDeleting(true), pause);
-        }
-      } else {
-        setDisplayed(current.slice(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-        if (charIndex <= 1) {
-          setIsDeleting(false);
-          setTextIndex((prev) => (prev + 1) % texts.length);
-        }
-      }
-    }, isDeleting ? speed / 2 : speed);
+export default function Home() {
+  const [founderName, setFounderName] = useState('Founder');
+  const [segment, setSegment] = useState('Operations-heavy B2B teams');
+  const [hours, setHours] = useState(18);
+  const [activeNode, setActiveNode] = useState(workflowNodes[0].id);
+  const [tableView, setTableView] = useState('week');
 
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, textIndex, texts, speed, pause]);
+  const activeStep = workflowNodes.find((node) => node.id === activeNode) ?? workflowNodes[0];
+
+  const metrics = useMemo(() => {
+    const executionVelocity = Math.min(98, Math.round(hours * 2.1 + 42));
+    const autopilotCoverage = Math.min(93, Math.round(hours * 1.7 + 28));
+    const mrrTarget = 1000 + hours * 180;
+
+    return {
+      executionVelocity,
+      autopilotCoverage,
+      mrrTarget
+    };
+  }, [hours]);
+
+  const tableRows = tableView === 'week' ? weekRows : monthRows;
+
+  const segmentChart = useMemo(() => {
+    const base = segment.includes('B2B') ? [18, 32, 48, 66] : [14, 25, 36, 48];
+    return base.map((n, i) => n + Math.round(hours * (0.4 + i * 0.1)));
+  }, [hours, segment]);
+
+  const scrollToRoadmap = () => {
+    document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <span>
-      {displayed}
-      <span style={{
-        display: 'inline-block',
-        width: '2px',
-        height: '1em',
-        background: 'var(--accent-blue)',
-        marginLeft: '2px',
-        animation: 'blink 1s infinite',
-        verticalAlign: 'text-bottom'
-      }} />
-    </span>
-  );
-}
-
-/* ---- Hero Particles ---- */
-function HeroParticles() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    let particles = [];
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = 700;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.4 + 0.1,
-      });
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(99, 102, 241, ${p.opacity})`;
-        ctx.fill();
-      });
-
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(59, 130, 246, ${0.06 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />;
-}
-
-/* ---- Main Page ---- */
-export default function HomePage() {
-  const painPoints = [
-    {
-      icon: '🧠',
-      title: 'Decision Fatigue',
-      subtitle: 'The "Brain Drain"',
-      desc: 'Hundreds of micro-decisions drain your mental battery. We use "Direction over Choice" to limit options to the optimal path.',
-      color: 'var(--accent-purple)',
-    },
-    {
-      icon: '📄',
-      title: 'The Blank Page',
-      subtitle: 'Building What Nobody Wants',
-      desc: 'Most founders fail by solving problems nobody has. Our Predictive Analytics ensures immediate product-market fit.',
-      color: 'var(--accent-cyan)',
-    },
-    {
-      icon: '💰',
-      title: 'High Cost of Entry',
-      subtitle: '6 Months & $500K+',
-      desc: 'Traditional AI apps cost $500K and take 6 months. We reduce dev time by 90% and costs by 74% using no-code automation.',
-      color: 'var(--accent-orange)',
-    },
-  ];
-
-  const phases = [
-    {
-      num: '01',
-      title: 'Deep Intake & Analysis',
-      desc: 'Answer 5 high-leverage questions. Our AI identifies your founder-market fit and discovers 3 revenue-bleeding operational pains.',
-      icon: '🔍',
-      color: 'var(--accent-blue)',
-    },
-    {
-      num: '02',
-      title: 'Anti-Bloat Blueprint',
-      desc: 'No options—just the single most efficient path. A strict blueprint that solves the core problem without feature bloat.',
-      icon: '📐',
-      color: 'var(--accent-purple)',
-    },
-    {
-      num: '03',
-      title: 'AI Logic Engineering',
-      desc: 'System prompts, JSON schemas, and logic scripts generated automatically. Your Strategic Director Dashboard is ready.',
-      icon: '⚙️',
-      color: 'var(--accent-cyan)',
-    },
-    {
-      num: '04',
-      title: 'Sales Automation',
-      desc: 'Lead intelligence, outreach scripts, and a 30-day schedule to secure your first 5 paying customers.',
-      icon: '🚀',
-      color: 'var(--accent-green)',
-    },
-  ];
-
-  const stats = [
-    { value: 273, suffix: 'B+', prefix: '$', label: 'Global SaaS Market' },
-    { value: 90, suffix: '%', label: 'Faster to Market' },
-    { value: 74, suffix: '%', label: 'Cost Reduction' },
-    { value: 300, suffix: '%', label: 'Reply Rate Boost' },
-  ];
-
-  const pricingTiers = [
-    {
-      name: 'Starter',
-      price: '29',
-      period: '/month',
-      desc: 'Perfect for exploring your first micro-SaaS idea',
-      features: [
-        'AI Niche Discovery',
-        '1 Blueprint Generation',
-        'Basic Market Analysis',
-        'Email Outreach Templates',
-        'Community Support',
-      ],
-      cta: 'Start Free Trial',
-      popular: false,
-    },
-    {
-      name: 'Growth',
-      price: '99',
-      period: '/month',
-      desc: 'For serious founders ready to launch and scale',
-      features: [
-        'Everything in Starter',
-        'Unlimited Blueprints',
-        'Full AI Logic Engineering',
-        'Lead Intelligence Engine',
-        '30-Day Sales Playbook',
-        'Priority Support',
-        'Dashboard Analytics',
-      ],
-      cta: 'Start Building',
-      popular: true,
-    },
-    {
-      name: 'Enterprise',
-      price: '299',
-      period: '/month',
-      desc: 'White-glove service for agencies and venture builders',
-      features: [
-        'Everything in Growth',
-        'Custom AI Models',
-        'Multi-Tenant Architecture',
-        'API Access',
-        'Dedicated Account Manager',
-        'SLA Guarantee',
-        'Onboarding Workshop',
-      ],
-      cta: 'Contact Sales',
-      popular: false,
-    },
-  ];
-
-  return (
-    <>
-      {/* ===== HERO ===== */}
-      <section className="hero">
-        <div className="hero-bg">
-          <HeroParticles />
-          <div className="hero-glow hero-glow-1" />
-          <div className="hero-glow hero-glow-2" />
-        </div>
-        <div className="container hero-content">
-          <div className="animate-fade-in-up">
-            <span className="badge badge-blue" style={{ marginBottom: '1.25rem' }}>
-              ✨ AI-Powered Business Builder
-            </span>
-          </div>
-          <h1 className="hero-title animate-fade-in-up delay-100">
-            Your AI <span className="text-gradient">Co-Founder</span>
+    <div className="meta-home" id="top">
+      <section className="hero section-wrap" id="overview">
+        <div className="hero-copy">
+          <p className="eyebrow">Business-in-a-Box Co-Founder</p>
+          <h1>
+            Build your <span>most personalized</span> SaaS engine, not another template landing page.
           </h1>
-          <p className="hero-subtitle animate-fade-in-up delay-200">
-            <TypewriterText
-              texts={[
-                'Discover profitable niches instantly',
-                'Generate anti-bloat SaaS blueprints',
-                'Automate your first 5 sales',
-                'Launch in days, not months',
-              ]}
-            />
+          <p className="subtitle">
+            We kept your current visual language as the base and upgraded it into an action-first command center with real interactions.
           </p>
-          <p className="hero-desc animate-fade-in-up delay-300">
-            Stop drowning in decision fatigue. Our Business-in-a-Box robot handles niche research,
-            UI/UX architecture, AI logic engineering, and sales automation—so you become the
-            Strategic Director, not the laborer.
-          </p>
-          <div className="hero-actions animate-fade-in-up delay-400">
-            <Link href="/launch" className="btn btn-primary btn-lg">
-              Start Building Free →
-            </Link>
-            <Link href="/#how-it-works" className="btn btn-secondary btn-lg">
-              See How It Works
-            </Link>
+
+          <div className="founder-console">
+            <div className="field-grid">
+              <label>
+                Founder Name
+                <input
+                  value={founderName}
+                  onChange={(event) => setFounderName(event.target.value)}
+                  placeholder="Type your name"
+                  className="text-input"
+                />
+              </label>
+              <label>
+                Target Segment
+                <select value={segment} onChange={(event) => setSegment(event.target.value)} className="text-input">
+                  <option>Operations-heavy B2B teams</option>
+                  <option>Agencies and consultancies</option>
+                  <option>Founder-led eCommerce brands</option>
+                </select>
+              </label>
+            </div>
+            <label className="range-label">
+              Weekly build hours: <strong>{hours}h</strong>
+              <input type="range" min="6" max="40" value={hours} onChange={(event) => setHours(Number(event.target.value))} />
+            </label>
+            <div className="hero-actions">
+              <button type="button" className="cta-primary" onClick={scrollToRoadmap}>
+                Generate Roadmap
+              </button>
+              <Link href="/launch" className="cta-secondary">
+                Open Launch Console
+              </Link>
+            </div>
           </div>
-          <div className="hero-trust animate-fade-in-up delay-500">
-            <div className="hero-trust-avatars">
-              {['🧑‍💻', '👩‍🔬', '👨‍💼', '👩‍🎨', '🧑‍🚀'].map((e, i) => (
-                <div key={i} className="hero-avatar">{e}</div>
+        </div>
+
+        <div className="hero-visual">
+          <div className="scene-shell">
+            <ThreeDScene />
+          </div>
+          <div className="profile-card">
+            <p className="profile-top">Strategic Director Profile</p>
+            <h3>{founderName || 'Founder'}</h3>
+            <p>{segment}</p>
+            <div className="metric-row">
+              <div>
+                <span>{metrics.executionVelocity}%</span>
+                <small>Execution Velocity</small>
+              </div>
+              <div>
+                <span>{metrics.autopilotCoverage}%</span>
+                <small>AI Coverage</small>
+              </div>
+              <div>
+                <span>${metrics.mrrTarget.toLocaleString()}</span>
+                <small>Month-1 Target</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="workflow section-wrap" id="workflow">
+        <div className="section-head">
+          <h2>Interactive Build Diagram</h2>
+          <p>Click each phase to inspect what must happen and why it matters.</p>
+        </div>
+
+        <div className="workflow-grid">
+          <div className="node-column">
+            {workflowNodes.map((node) => (
+              <button
+                key={node.id}
+                type="button"
+                className={`workflow-node ${activeNode === node.id ? 'active' : ''}`}
+                onClick={() => setActiveNode(node.id)}
+              >
+                <span>{node.title}</span>
+                <small>{node.duration}</small>
+              </button>
+            ))}
+          </div>
+
+          <div className="diagram-panel">
+            <svg viewBox="0 0 560 200" role="img" aria-label="Execution diagram" className="diagram-svg">
+              <defs>
+                <linearGradient id="flow" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stopColor="#22d3ee" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+              <path d="M 30 100 C 130 20, 200 180, 300 100 S 490 20, 530 100" fill="none" stroke="url(#flow)" strokeWidth="5" />
+              {[70, 200, 330, 470].map((x, index) => (
+                <g key={x}>
+                  <circle cx={x} cy="100" r={activeNode === workflowNodes[index].id ? '18' : '12'} fill={activeNode === workflowNodes[index].id ? '#22d3ee' : '#1e293b'} />
+                  <text x={x} y="106" textAnchor="middle" fill="#e2e8f0" fontSize="10">
+                    {index + 1}
+                  </text>
+                </g>
+              ))}
+            </svg>
+            <div className="step-details">
+              <h3>{activeStep.title}</h3>
+              <p>{activeStep.description}</p>
+              <span>{activeStep.duration}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="metrics section-wrap" id="metrics">
+        <div className="section-head">
+          <h2>Execution Table + Live Priority View</h2>
+          <p>No dead controls: every row maps to owner, KPI, and delivery status.</p>
+        </div>
+
+        <div className="table-controls" role="tablist" aria-label="Timeline view">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tableView === 'week'}
+            className={tableView === 'week' ? 'active' : ''}
+            onClick={() => setTableView('week')}
+          >
+            Week 1
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tableView === 'month'}
+            className={tableView === 'month' ? 'active' : ''}
+            onClick={() => setTableView('month')}
+          >
+            Month 1
+          </button>
+          <Link href="/dashboard" className="table-link">
+            Open Live Dashboard
+          </Link>
+        </div>
+
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>Owner</th>
+                <th>Task</th>
+                <th>KPI</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableRows.map((row) => (
+                <tr key={`${tableView}-${row.phase}`}>
+                  <td>{row.phase}</td>
+                  <td>{row.owner}</td>
+                  <td>{row.task}</td>
+                  <td>{row.kpi}</td>
+                  <td>
+                    <span className={`status ${row.status.toLowerCase().replace(' ', '-')}`}>{row.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="intel section-wrap" id="studio">
+        <div className="section-head">
+          <h2>Personalized Intel Studio</h2>
+          <p>Meaningful visuals, not random decoration: every card supports planning or execution.</p>
+        </div>
+
+        <div className="intel-grid">
+          <article className="intel-card chart-card">
+            <h3>Segment Opportunity Curve</h3>
+            <p>{segment}</p>
+            <div className="bar-chart" aria-label="Opportunity trend">
+              {segmentChart.map((value, idx) => (
+                <div key={`${value}-${idx}`} className="bar-col">
+                  <span>{value}</span>
+                  <div className="bar" style={{ height: `${Math.max(18, value)}px` }} />
+                  <small>W{idx + 1}</small>
+                </div>
               ))}
             </div>
-            <span>Join <strong>2,400+</strong> founders already building</span>
-          </div>
-        </div>
-      </section>
+          </article>
 
-      {/* ===== PAIN POINTS ===== */}
-      <section className="section" id="problems">
-        <div className="container">
-          <div className="section-header text-center">
-            <span className="badge badge-purple">The Problem</span>
-            <h2 style={{ marginTop: '1rem' }}>Why 90% of Founders Never Ship</h2>
-            <p className="section-subtitle">Three critical bottlenecks that kill startups before they launch</p>
-          </div>
-          <div className="pain-grid">
-            {painPoints.map((p, i) => (
-              <div key={i} className="glass-card pain-card animate-fade-in-up" style={{ animationDelay: `${i * 0.15}s`, opacity: 0 }}>
-                <div className="pain-icon" style={{ background: `${p.color}15`, color: p.color }}>{p.icon}</div>
-                <h3>{p.title}</h3>
-                <span className="pain-subtitle" style={{ color: p.color }}>{p.subtitle}</span>
-                <p>{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <article className="intel-card image-card">
+            <h3>Market Radar</h3>
+            <p>Visual feed for your niche coverage and expansion points.</p>
+            <div className="image-row">
+              <Image src="/globe.svg" alt="Market radar globe" width={80} height={80} />
+              <Image src="/window.svg" alt="Command view window" width={80} height={80} />
+              <Image src="/file.svg" alt="Execution document" width={80} height={80} />
+            </div>
+          </article>
 
-      {/* ===== HOW IT WORKS ===== */}
-      <section className="section section-dark" id="how-it-works">
-        <div className="container">
-          <div className="section-header text-center">
-            <span className="badge badge-blue">How It Works</span>
-            <h2 style={{ marginTop: '1rem' }}>Idea to Revenue in 4 Phases</h2>
-            <p className="section-subtitle">A guided, opinionated pipeline that eliminates guesswork</p>
-          </div>
-          <div className="phases-grid">
-            {phases.map((phase, i) => (
-              <div key={i} className="phase-card animate-fade-in-up" style={{ animationDelay: `${i * 0.15}s`, opacity: 0 }}>
-                <div className="phase-num" style={{ color: phase.color }}>{phase.num}</div>
-                <div className="phase-icon">{phase.icon}</div>
-                <h3>{phase.title}</h3>
-                <p>{phase.desc}</p>
-                {i < phases.length - 1 && <div className="phase-connector" />}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== STATS ===== */}
-      <section className="section stats-section">
-        <div className="container">
-          <div className="stats-grid">
-            {stats.map((stat, i) => (
-              <div key={i} className="stat-item">
-                <div className="stat-value">
-                  <AnimatedCounter end={stat.value} prefix={stat.prefix || ''} suffix={stat.suffix || ''} />
-                </div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FEATURES SHOWCASE ===== */}
-      <section className="section" id="features">
-        <div className="container">
-          <div className="section-header text-center">
-            <span className="badge badge-green">Features</span>
-            <h2 style={{ marginTop: '1rem' }}>Everything You Need to Launch</h2>
-            <p className="section-subtitle">From market research to your first paying customer</p>
-          </div>
-          <div className="features-grid">
-            {[
-              { icon: '🎯', title: 'Niche Discovery Engine', desc: 'AI scans 10,000+ data points to find profitable, underserved niches with immediate product-market fit.' },
-              { icon: '🏗️', title: 'Blueprint Generator', desc: 'Strict, anti-bloat architecture that defines auth, security, database, and deployment from day one.' },
-              { icon: '🤖', title: 'AI Logic Compiler', desc: 'Auto-generates system prompts, JSON schemas, and agentic logic chains for your SaaS core engine.' },
-              { icon: '📊', title: 'Director Dashboard', desc: 'Real-time command center with MRR tracking, user analytics, and AI performance monitoring.' },
-              { icon: '📧', title: 'Outreach Arsenal', desc: 'Pre-built email and LinkedIn scripts with a 30-day playbook to land your first 5 paying customers.' },
-              { icon: '🔒', title: 'Enterprise Security', desc: 'Built-in encryption, rate limiting, error handling, and scalable infrastructure from the start.' },
-            ].map((f, i) => (
-              <div key={i} className="glass-card feature-card animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s`, opacity: 0 }}>
-                <div className="feature-icon">{f.icon}</div>
-                <h4>{f.title}</h4>
-                <p>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PRICING ===== */}
-      <section className="section section-dark" id="pricing">
-        <div className="container">
-          <div className="section-header text-center">
-            <span className="badge badge-orange">Pricing</span>
-            <h2 style={{ marginTop: '1rem' }}>Simple, Transparent Pricing</h2>
-            <p className="section-subtitle">Start free. Scale when you{"'"}re ready.</p>
-          </div>
-          <div className="pricing-grid">
-            {pricingTiers.map((tier, i) => (
-              <div key={i} className={`glass-card pricing-card ${tier.popular ? 'pricing-popular' : ''}`}>
-                {tier.popular && <div className="pricing-badge">Most Popular</div>}
-                <h3>{tier.name}</h3>
-                <p className="pricing-desc">{tier.desc}</p>
-                <div className="pricing-price">
-                  <span className="pricing-dollar">$</span>
-                  <span className="pricing-amount">{tier.price}</span>
-                  <span className="pricing-period">{tier.period}</span>
-                </div>
-                <ul className="pricing-features">
-                  {tier.features.map((f, j) => (
-                    <li key={j}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/launch"
-                  className={`btn ${tier.popular ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ width: '100%' }}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== CTA BANNER ===== */}
-      <section className="section cta-section">
-        <div className="container">
-          <div className="cta-card glass-card text-center">
-            <h2>Ready to Build Your <span className="text-gradient">SaaS Empire</span>?</h2>
-            <p>Join thousands of founders who turned their ideas into revenue-generating products with AI.</p>
-            <Link href="/launch" className="btn btn-primary btn-lg" style={{ marginTop: '1.5rem' }}>
-              Launch Your SaaS Now →
+          <article className="intel-card prompt-card">
+            <h3>Founder Prompt Snapshot</h3>
+            <code>
+              {`Founder: ${founderName || 'Founder'}\nSegment: ${segment}\nHours: ${hours}/week\nFocus: Ship, validate, monetize.`}
+            </code>
+            <Link href="/launch" className="mini-cta">
+              Run This In Launch
             </Link>
+          </article>
+        </div>
+      </section>
+
+      <section className="roadmap section-wrap" id="roadmap">
+        <div className="section-head">
+          <h2>Roadmap to First 5 Customers</h2>
+          <p>One clear path from build to monetization.</p>
+        </div>
+
+        <div className="roadmap-grid">
+          <div className="roadmap-step">
+            <strong>Week 1</strong>
+            <p>Finalize pain thesis, launch MVP skeleton, validate with 10 real operators.</p>
+          </div>
+          <div className="roadmap-step">
+            <strong>Week 2</strong>
+            <p>Deploy AI command center, automate core flow, publish onboarding walkthrough.</p>
+          </div>
+          <div className="roadmap-step">
+            <strong>Week 3</strong>
+            <p>Run outbound sprint, book demos, capture objections, tighten positioning.</p>
+          </div>
+          <div className="roadmap-step">
+            <strong>Week 4</strong>
+            <p>Close first pilots, push retention loop, instrument dashboard for growth.</p>
           </div>
         </div>
       </section>
 
       <style jsx>{`
-        /* ===== HERO ===== */
+        .meta-home {
+          background:
+            radial-gradient(circle at 18% -10%, rgba(34, 211, 238, 0.24), transparent 42%),
+            radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.18), transparent 38%),
+            #040711;
+          color: #d8e0ef;
+          min-height: 100vh;
+          padding-bottom: 5rem;
+        }
+
+        .section-wrap {
+          width: min(1120px, calc(100% - 2rem));
+          margin: 0 auto;
+          padding: 4rem 0;
+        }
+
         .hero {
-          position: relative;
-          min-height: 90vh;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
-          padding: var(--space-4xl) 0;
-        }
-        .hero-bg {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-        .hero-glow {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(120px);
-        }
-        .hero-glow-1 {
-          width: 600px;
-          height: 600px;
-          background: rgba(99, 102, 241, 0.12);
-          top: -200px;
-          right: -100px;
-        }
-        .hero-glow-2 {
-          width: 500px;
-          height: 500px;
-          background: rgba(6, 182, 212, 0.08);
-          bottom: -100px;
-          left: -100px;
-        }
-        .hero-content {
-          position: relative;
-          z-index: 1;
-          max-width: 720px;
-        }
-        .hero-title {
-          font-size: clamp(2.5rem, 6vw, 4.5rem);
-          font-weight: 900;
-          letter-spacing: -0.03em;
-          line-height: 1.1;
-          margin-bottom: 1rem;
-        }
-        .hero-subtitle {
-          font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-          color: var(--text-primary);
-          min-height: 2.5rem;
-          margin-bottom: 1rem;
-        }
-        .hero-desc {
-          font-size: 1.05rem;
-          color: var(--text-secondary);
-          max-width: 560px;
-          margin-bottom: 2rem;
-          line-height: 1.7;
-        }
-        .hero-actions {
-          display: flex;
-          gap: var(--space-md);
-          flex-wrap: wrap;
-          margin-bottom: 2.5rem;
-        }
-        .hero-trust {
-          display: flex;
-          align-items: center;
-          gap: var(--space-md);
-          color: var(--text-tertiary);
-          font-size: 0.9rem;
-        }
-        .hero-trust strong {
-          color: var(--text-primary);
-        }
-        .hero-trust-avatars {
-          display: flex;
-        }
-        .hero-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: var(--bg-tertiary);
-          border: 2px solid var(--bg-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.9rem;
-          margin-left: -8px;
-        }
-        .hero-avatar:first-child {
-          margin-left: 0;
+          display: grid;
+          grid-template-columns: 1.05fr 0.95fr;
+          gap: 1.5rem;
+          padding-top: 3.25rem;
+          align-items: stretch;
         }
 
-        /* ===== PAIN POINTS ===== */
-        .section-header {
-          margin-bottom: var(--space-3xl);
-        }
-        .section-subtitle {
-          color: var(--text-tertiary);
-          font-size: 1.1rem;
-          margin-top: 0.75rem;
-          max-width: 500px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        .section-dark {
-          background: var(--bg-secondary);
-        }
-        .pain-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: var(--space-xl);
-        }
-        .pain-card {
-          text-align: center;
-          padding: var(--space-2xl);
-        }
-        .pain-icon {
-          width: 64px;
-          height: 64px;
-          border-radius: var(--radius-lg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.8rem;
-          margin: 0 auto var(--space-lg);
-        }
-        .pain-card h3 {
-          margin-bottom: 0.4rem;
-        }
-        .pain-subtitle {
-          font-size: 0.85rem;
-          font-weight: 600;
-          display: block;
-          margin-bottom: var(--space-md);
-        }
-        .pain-card p {
-          font-size: 0.92rem;
-          color: var(--text-tertiary);
-          line-height: 1.6;
-        }
-
-        /* ===== PHASES ===== */
-        .phases-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: var(--space-xl);
-          position: relative;
-        }
-        .phase-card {
-          text-align: center;
-          padding: var(--space-xl);
-          background: var(--bg-glass);
-          border: 1px solid var(--border-glass);
-          border-radius: var(--radius-lg);
-          position: relative;
-          transition: all var(--transition-base);
-        }
-        .phase-card:hover {
-          border-color: var(--border-glass-hover);
-          transform: translateY(-4px);
-          box-shadow: var(--shadow-glow);
-        }
-        .phase-num {
-          font-family: var(--font-mono);
-          font-size: 0.85rem;
-          font-weight: 700;
-          margin-bottom: var(--space-sm);
-        }
-        .phase-icon {
-          font-size: 2.2rem;
-          margin-bottom: var(--space-md);
-        }
-        .phase-card h3 {
-          font-size: 1.1rem;
-          margin-bottom: 0.6rem;
-        }
-        .phase-card p {
-          font-size: 0.88rem;
-          color: var(--text-tertiary);
-          line-height: 1.5;
-        }
-        .phase-connector {
-          display: none;
-        }
-
-        /* ===== STATS ===== */
-        .stats-section {
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(6, 182, 212, 0.06));
-          border-top: 1px solid var(--border-glass);
-          border-bottom: 1px solid var(--border-glass);
-          padding: var(--space-2xl) 0;
-        }
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: var(--space-xl);
-          text-align: center;
-        }
-        .stat-value {
-          font-size: clamp(2rem, 4vw, 3rem);
-          font-weight: 900;
-          background: var(--gradient-hero);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .stat-label {
-          color: var(--text-tertiary);
-          font-size: 0.9rem;
-          margin-top: 0.5rem;
-          font-weight: 500;
-        }
-
-        /* ===== FEATURES ===== */
-        .features-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: var(--space-xl);
-        }
-        .feature-card {
-          padding: var(--space-xl);
-        }
-        .feature-icon {
-          font-size: 2rem;
-          margin-bottom: var(--space-md);
-        }
-        .feature-card h4 {
-          margin-bottom: 0.5rem;
-        }
-        .feature-card p {
-          font-size: 0.9rem;
-          color: var(--text-tertiary);
-          line-height: 1.6;
-        }
-
-        /* ===== PRICING ===== */
-        .pricing-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: var(--space-xl);
-          align-items: start;
-        }
-        .pricing-card {
-          padding: var(--space-2xl);
-          position: relative;
-        }
-        .pricing-popular {
-          border-color: var(--accent-blue);
-          box-shadow: var(--shadow-glow);
-          transform: scale(1.03);
-        }
-        .pricing-popular:hover {
-          transform: scale(1.05);
-        }
-        .pricing-badge {
-          position: absolute;
-          top: -12px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: var(--gradient-primary);
-          color: white;
-          padding: 0.3rem 1rem;
-          border-radius: var(--radius-full);
-          font-size: 0.75rem;
-          font-weight: 700;
+        .eyebrow {
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .pricing-card h3 {
-          font-size: 1.3rem;
-          margin-bottom: 0.4rem;
-        }
-        .pricing-desc {
-          color: var(--text-tertiary);
-          font-size: 0.88rem;
-          margin-bottom: var(--space-lg);
-        }
-        .pricing-price {
-          display: flex;
-          align-items: baseline;
-          gap: 0.2rem;
-          margin-bottom: var(--space-xl);
-        }
-        .pricing-dollar {
-          font-size: 1.3rem;
+          letter-spacing: 0.16em;
+          font-size: 0.72rem;
+          color: #7dd3fc;
+          margin-bottom: 0.75rem;
           font-weight: 700;
-          color: var(--text-primary);
         }
-        .pricing-amount {
-          font-size: 3rem;
-          font-weight: 900;
-          color: var(--text-primary);
-          line-height: 1;
+
+        h1 {
+          margin: 0;
+          font-size: clamp(2rem, 4vw, 3.2rem);
+          line-height: 1.1;
+          color: #f4f8ff;
+          letter-spacing: -0.04em;
+          max-width: 18ch;
         }
-        .pricing-period {
-          color: var(--text-tertiary);
-          font-size: 0.9rem;
+
+        h1 span {
+          color: #7dd3fc;
+          font-style: italic;
         }
-        .pricing-features {
-          list-style: none;
-          margin-bottom: var(--space-xl);
+
+        .subtitle {
+          margin: 1rem 0 1.5rem;
+          color: #9db0d3;
+          max-width: 60ch;
+        }
+
+        .founder-console {
+          border: 1px solid rgba(125, 211, 252, 0.2);
+          background: linear-gradient(160deg, rgba(15, 23, 42, 0.78), rgba(2, 6, 23, 0.92));
+          backdrop-filter: blur(10px);
+          border-radius: 18px;
+          padding: 1rem;
+        }
+
+        .field-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.8rem;
+        }
+
+        label {
           display: flex;
           flex-direction: column;
-          gap: 0.7rem;
-        }
-        .pricing-features li {
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          color: var(--text-secondary);
-          font-size: 0.9rem;
+          gap: 0.45rem;
+          font-size: 0.78rem;
+          color: #bfd0ef;
+          font-weight: 600;
         }
 
-        /* ===== CTA ===== */
-        .cta-section {
-          padding: var(--space-3xl) 0;
+        .text-input {
+          border: 1px solid rgba(148, 163, 184, 0.3);
+          background: rgba(15, 23, 42, 0.85);
+          color: #e2e8f0;
+          padding: 0.75rem 0.85rem;
+          border-radius: 10px;
         }
-        .cta-card {
-          padding: var(--space-3xl);
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(59, 130, 246, 0.08));
-          border: 1px solid rgba(99, 102, 241, 0.2);
+
+        .text-input:focus {
+          border-color: rgba(34, 211, 238, 0.6);
         }
-        .cta-card h2 {
-          font-size: clamp(1.5rem, 3vw, 2.2rem);
+
+        .range-label {
+          margin-top: 0.9rem;
+        }
+
+        .range-label input {
+          width: 100%;
+        }
+
+        .hero-actions {
+          margin-top: 1rem;
+          display: flex;
+          gap: 0.65rem;
+          flex-wrap: wrap;
+        }
+
+        .cta-primary,
+        .cta-secondary,
+        .mini-cta,
+        .table-link {
+          border-radius: 999px;
+          padding: 0.7rem 1rem;
+          font-size: 0.85rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-primary {
+          color: #031019;
+          background: linear-gradient(120deg, #22d3ee, #60a5fa);
+          border: none;
+        }
+
+        .cta-secondary,
+        .table-link,
+        .mini-cta {
+          border: 1px solid rgba(125, 211, 252, 0.38);
+          color: #dbeafe;
+          background: rgba(7, 13, 29, 0.72);
+        }
+
+        .cta-primary:hover,
+        .cta-secondary:hover,
+        .table-link:hover,
+        .mini-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 22px rgba(14, 165, 233, 0.23);
+        }
+
+        .hero-visual {
+          display: grid;
+          grid-template-rows: 1fr auto;
+          gap: 0.9rem;
+        }
+
+        .scene-shell {
+          position: relative;
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          background: radial-gradient(circle at 50% 10%, rgba(15, 23, 42, 0.55), rgba(2, 6, 23, 0.95));
+          border-radius: 20px;
+          overflow: hidden;
+          min-height: 340px;
+        }
+
+        .profile-card {
+          border: 1px solid rgba(56, 189, 248, 0.22);
+          background: rgba(2, 6, 23, 0.82);
+          border-radius: 16px;
+          padding: 1rem;
+        }
+
+        .profile-top {
+          margin: 0;
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.13em;
+          color: #7dd3fc;
+        }
+
+        .profile-card h3 {
+          margin: 0.35rem 0 0.1rem;
+          color: #f8fafc;
+          font-size: 1.2rem;
+        }
+
+        .profile-card > p {
+          margin: 0;
+          color: #9fb2d8;
+          font-size: 0.88rem;
+        }
+
+        .metric-row {
+          margin-top: 0.9rem;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.65rem;
+        }
+
+        .metric-row span {
+          display: block;
+          color: #e0f2fe;
+          font-size: 1rem;
+          font-weight: 700;
+        }
+
+        .metric-row small {
+          color: #8da3c8;
+          font-size: 0.72rem;
+        }
+
+        .section-head {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: end;
+          justify-content: space-between;
+          gap: 0.5rem 2rem;
           margin-bottom: 1rem;
         }
-        .cta-card p {
-          color: var(--text-secondary);
-          max-width: 500px;
-          margin: 0 auto;
+
+        .section-head h2 {
+          margin: 0;
+          color: #eff6ff;
+          font-size: clamp(1.45rem, 2.8vw, 2.15rem);
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1024px) {
-          .phases-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
+        .section-head p {
+          margin: 0;
+          color: #9fb0cd;
         }
-        @media (max-width: 768px) {
-          .hero {
-            min-height: auto;
-            padding: var(--space-3xl) 0 var(--space-2xl);
-          }
-          .pain-grid,
-          .features-grid,
-          .pricing-grid {
+
+        .workflow-grid {
+          display: grid;
+          grid-template-columns: 280px 1fr;
+          gap: 1rem;
+        }
+
+        .node-column {
+          display: grid;
+          gap: 0.6rem;
+        }
+
+        .workflow-node {
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          border-radius: 12px;
+          background: rgba(15, 23, 42, 0.8);
+          color: #d2def4;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.85rem;
+          text-align: left;
+        }
+
+        .workflow-node small {
+          color: #8ea2c8;
+          font-size: 0.7rem;
+        }
+
+        .workflow-node.active {
+          border-color: rgba(34, 211, 238, 0.6);
+          box-shadow: 0 14px 26px rgba(34, 211, 238, 0.15);
+        }
+
+        .diagram-panel {
+          border: 1px solid rgba(125, 211, 252, 0.22);
+          background: linear-gradient(170deg, rgba(12, 20, 38, 0.8), rgba(2, 6, 23, 0.94));
+          border-radius: 16px;
+          padding: 1rem;
+        }
+
+        .diagram-svg {
+          width: 100%;
+          height: 200px;
+          display: block;
+        }
+
+        .step-details h3 {
+          margin: 0.2rem 0;
+          color: #f8fbff;
+        }
+
+        .step-details p {
+          margin: 0 0 0.4rem;
+          color: #adc0de;
+          max-width: 62ch;
+        }
+
+        .step-details span {
+          display: inline-block;
+          color: #7dd3fc;
+          border: 1px solid rgba(125, 211, 252, 0.35);
+          border-radius: 999px;
+          padding: 0.2rem 0.7rem;
+          font-size: 0.74rem;
+        }
+
+        .table-controls {
+          display: flex;
+          gap: 0.6rem;
+          align-items: center;
+          margin-bottom: 0.85rem;
+          flex-wrap: wrap;
+        }
+
+        .table-controls button {
+          border: 1px solid rgba(148, 163, 184, 0.28);
+          background: rgba(15, 23, 42, 0.82);
+          color: #c7d6f2;
+          padding: 0.55rem 0.9rem;
+          border-radius: 999px;
+          font-weight: 700;
+          font-size: 0.8rem;
+        }
+
+        .table-controls button.active {
+          border-color: rgba(34, 211, 238, 0.68);
+          color: #d7f8ff;
+        }
+
+        .table-wrap {
+          border: 1px solid rgba(148, 163, 184, 0.24);
+          border-radius: 16px;
+          overflow-x: auto;
+          background: rgba(2, 6, 23, 0.84);
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 740px;
+        }
+
+        th,
+        td {
+          text-align: left;
+          padding: 0.85rem 1rem;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+          color: #d4def2;
+          font-size: 0.84rem;
+        }
+
+        th {
+          font-size: 0.74rem;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #90a7ca;
+          font-weight: 700;
+        }
+
+        .status {
+          padding: 0.2rem 0.55rem;
+          border-radius: 999px;
+          font-size: 0.72rem;
+          border: 1px solid;
+        }
+
+        .status.done,
+        .status.ready {
+          color: #86efac;
+          border-color: rgba(134, 239, 172, 0.5);
+          background: rgba(20, 83, 45, 0.32);
+        }
+
+        .status.in-progress {
+          color: #7dd3fc;
+          border-color: rgba(125, 211, 252, 0.5);
+          background: rgba(12, 74, 110, 0.35);
+        }
+
+        .status.planned {
+          color: #fdba74;
+          border-color: rgba(251, 191, 36, 0.4);
+          background: rgba(120, 53, 15, 0.35);
+        }
+
+        .intel-grid {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr 1fr;
+          gap: 0.9rem;
+        }
+
+        .intel-card {
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          border-radius: 16px;
+          padding: 1rem;
+          background: linear-gradient(160deg, rgba(15, 23, 42, 0.83), rgba(2, 6, 23, 0.92));
+        }
+
+        .intel-card h3 {
+          margin: 0;
+          color: #f0f9ff;
+          font-size: 1rem;
+        }
+
+        .intel-card p {
+          margin: 0.4rem 0 0.9rem;
+          color: #a7bbdf;
+          font-size: 0.82rem;
+        }
+
+        .bar-chart {
+          display: flex;
+          align-items: end;
+          gap: 0.5rem;
+          min-height: 150px;
+        }
+
+        .bar-col {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.28rem;
+          flex: 1;
+        }
+
+        .bar-col span {
+          font-size: 0.7rem;
+          color: #93c5fd;
+        }
+
+        .bar-col small {
+          font-size: 0.66rem;
+          color: #8ea2c8;
+        }
+
+        .bar {
+          width: 100%;
+          max-width: 40px;
+          border-radius: 8px 8px 0 0;
+          background: linear-gradient(180deg, #22d3ee, #1d4ed8);
+          box-shadow: 0 8px 18px rgba(29, 78, 216, 0.35);
+        }
+
+        .image-row {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.6rem;
+          border: 1px dashed rgba(148, 163, 184, 0.36);
+          border-radius: 12px;
+          background: rgba(8, 15, 31, 0.72);
+        }
+
+        .prompt-card code {
+          display: block;
+          white-space: pre-line;
+          font-size: 0.78rem;
+          color: #bfdbfe;
+          background: rgba(15, 23, 42, 0.85);
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 12px;
+          padding: 0.8rem;
+          margin-bottom: 1rem;
+        }
+
+        .roadmap-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 0.8rem;
+        }
+
+        .roadmap-step {
+          border: 1px solid rgba(148, 163, 184, 0.24);
+          border-radius: 14px;
+          padding: 1rem;
+          background: rgba(15, 23, 42, 0.8);
+        }
+
+        .roadmap-step strong {
+          color: #67e8f9;
+          display: block;
+          margin-bottom: 0.45rem;
+          font-size: 0.84rem;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .roadmap-step p {
+          margin: 0;
+          color: #b6c5e4;
+          font-size: 0.83rem;
+          line-height: 1.5;
+        }
+
+        @media (max-width: 980px) {
+          .hero,
+          .workflow-grid,
+          .intel-grid,
+          .roadmap-grid {
             grid-template-columns: 1fr;
           }
-          .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-lg);
+
+          .scene-shell {
+            min-height: 280px;
           }
-          .pricing-popular {
-            transform: scale(1);
-          }
-          .pricing-popular:hover {
-            transform: scale(1);
-          }
-          .hero-actions {
-            flex-direction: column;
-          }
-          .hero-actions .btn {
-            width: 100%;
-            text-align: center;
-          }
-        }
-        @media (max-width: 480px) {
-          .phases-grid {
+
+          .field-grid {
             grid-template-columns: 1fr;
           }
-          .stats-grid {
+
+          .metric-row {
             grid-template-columns: 1fr;
           }
         }
       `}</style>
-    </>
+    </div>
   );
 }
