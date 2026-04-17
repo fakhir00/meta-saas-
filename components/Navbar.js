@@ -13,119 +13,68 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`bolt-nav ${scrolled ? 'scrolled' : ''}`}>
-        <div className="bolt-nav-links">
-          <Link href="/" className="bolt-link">Home</Link>
-          <Link href="/launch" className="bolt-link">Launch</Link>
-          <Link href="/dashboard" className="bolt-link">Dashboard</Link>
-          <div className="bolt-dropdown-trigger">
-             Resources 
-             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
+        <div className="nav-inner">
+          <Link href="/" className="nav-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <path d="M3 9h18M9 21V9"/>
+            </svg>
+            <span>MetaBox</span>
+          </Link>
+
+          <div className="nav-links">
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/launch" className="nav-link">Launch</Link>
+            <Link href="/dashboard" className="nav-link">Dashboard</Link>
+            <Link href="#pricing" className="nav-link">Pricing</Link>
+            <Link href="/about" className="nav-link">About</Link>
           </div>
-          <Link href="#" className="bolt-link">Enterprise</Link>
+
+          <Link href="/launch" className="nav-cta">
+            Start Free →
+          </Link>
         </div>
       </nav>
-      
-      <div className="top-cta-wrapper">
-          <button className="top-pill-btn">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-            MetaBox — Your Business-in-a-Box
-          </button>
-      </div>
 
       <style jsx>{`
-        .bolt-nav {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          z-index: 1000;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 1.5rem 0;
-          transition: all 0.3s ease;
-          background: transparent;
+        .nav {
+          position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+          padding: 1rem 0; transition: all 0.35s ease;
         }
-        
-        .bolt-nav.scrolled {
-          padding: 1rem 0;
-          background: rgba(3, 3, 3, 0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .nav.scrolled {
+          padding: 0.7rem 0;
+          background: rgba(5, 8, 17, 0.85);
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(255,255,255,0.04);
         }
+        .nav-inner {
+          max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+          display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+          display: flex; align-items: center; gap: 8px;
+          color: #f1f5f9; text-decoration: none; font-weight: 800;
+          font-size: 1.15rem; letter-spacing: -0.03em; font-style: italic;
+        }
+        .nav-logo:hover { color: #fff; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link {
+          font-size: 0.82rem; font-weight: 600; color: #94a3b8;
+          text-decoration: none; transition: color 0.2s;
+        }
+        .nav-link:hover { color: #f1f5f9; }
+        .nav-cta {
+          padding: 8px 20px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
+          background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+          text-decoration: none; transition: all 0.3s ease;
+          box-shadow: 0 2px 12px rgba(59,130,246,0.25);
+        }
+        .nav-cta:hover { box-shadow: 0 4px 20px rgba(59,130,246,0.45); transform: translateY(-1px); color: #fff; }
 
-        .bolt-nav-links {
-          display: flex;
-          gap: 2rem;
-          font-size: 11px;
-          font-weight: 600;
-          color: #9ca3af;
-        }
-
-        .bolt-link {
-          transition: color 0.3s;
-          text-decoration: none;
-          color: inherit;
-        }
-        
-        .bolt-link:hover {
-          color: #ffffff;
-        }
-
-        .bolt-dropdown-trigger {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: color 0.3s;
-        }
-        
-        .bolt-dropdown-trigger svg {
-          opacity: 0.5;
-          transition: opacity 0.3s;
-        }
-        
-        .bolt-dropdown-trigger:hover {
-          color: #ffffff;
-        }
-        
-        .bolt-dropdown-trigger:hover svg {
-          opacity: 1;
-        }
-
-        .top-cta-wrapper {
-          position: fixed;
-          top: 75px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 20;
-          pointer-events: none;
-        }
-
-        .top-pill-btn {
-          pointer-events: auto;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 6px 14px;
-          border-radius: 9999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: #111111;
-          color: #d1d5db;
-          font-size: 10px;
-          font-weight: 600;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-          transition: all 0.3s;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-
-        .top-pill-btn:hover {
-          background: #1a1a1a;
-          color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.2);
+        @media (max-width: 768px) {
+          .nav-links { display: none; }
+          .nav-logo span { font-size: 1rem; }
         }
       `}</style>
     </>
