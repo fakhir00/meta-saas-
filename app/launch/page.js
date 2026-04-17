@@ -11,42 +11,7 @@ function TypingIndicator({ text = "Processing..." }) {
         <span className="dot" /><span className="dot" /><span className="dot" />
       </div>
       <p className="typing-text">{text}</p>
-      <style jsx>{`
-        .typing-indicator-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 20px;
-          background: rgba(0,0,0,0.4);
-          border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-        .typing-indicator {
-          display: flex;
-          gap: 6px;
-        }
-        .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: var(--accent-cyan);
-          animation: typingBounce 1.4s infinite ease-in-out;
-        }
-        .dot:nth-child(1) { background: var(--accent-blue); }
-        .dot:nth-child(2) { animation-delay: 0.2s; background: var(--accent-cyan); }
-        .dot:nth-child(3) { animation-delay: 0.4s; background: var(--accent-green); }
-        .typing-text {
-          font-family: var(--font-mono);
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-          margin: 0;
-          letter-spacing: 0.5px;
-        }
-        @keyframes typingBounce {
-          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; box-shadow: 0 0 0 transparent; }
-          40% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px currentColor; }
-        }
-      `}</style>
+      
     </div>
   );
 }
@@ -71,94 +36,7 @@ function ProgressBar({ currentPhase, totalPhases = 5 }) {
           </div>
         ))}
       </div>
-      <style jsx>{`
-        .progress-bar-container {
-          padding: 2rem 0 3rem;
-          margin-bottom: 2rem;
-          position: relative;
-        }
-        .progress-steps {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: relative;
-          z-index: 2;
-        }
-        .progress-step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          position: relative;
-          flex: 1;
-        }
-        .progress-dot {
-          width: 45px;
-          height: 45px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-family: var(--font-mono);
-          font-size: 0.9rem;
-          background: rgba(10, 10, 15, 0.9);
-          border: 2px solid rgba(255,255,255,0.1);
-          color: var(--text-tertiary);
-          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 3;
-          position: relative;
-        }
-        
-        .progress-step.active .progress-dot {
-          background: rgba(6, 182, 212, 0.1);
-          border-color: var(--accent-cyan);
-          color: var(--accent-cyan);
-          box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.2);
-        }
-        .progress-step.completed .progress-dot {
-          background: rgba(16, 185, 129, 0.1);
-          border-color: var(--accent-green);
-          color: var(--accent-green);
-          box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-        }
-        
-        .progress-label {
-          position: absolute;
-          top: 60px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--text-tertiary);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          text-align: center;
-          white-space: nowrap;
-          transition: color 0.3s;
-        }
-        .progress-step.active .progress-label { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(6,182,212,0.5); }
-        .progress-step.completed .progress-label { color: var(--accent-green); }
-        
-        .progress-line {
-          position: absolute;
-          top: 22px;
-          left: 50%;
-          width: 100%;
-          height: 2px;
-          background: rgba(255,255,255,0.05);
-          z-index: 1;
-        }
-        .progress-line-fill {
-          height: 100%;
-          width: 0%;
-          background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
-          transition: width 0.8s ease-in-out;
-          box-shadow: 0 0 10px var(--accent-green);
-        }
-        .progress-step.completed .progress-line-fill { width: 100%; }
-
-        @media (max-width: 768px) {
-          .progress-label { display: none; }
-        }
-      `}</style>
+      
     </div>
   );
 }
@@ -583,54 +461,7 @@ export default function LaunchPage() {
         )}
       </div>
 
-      <style jsx>{`
-        .launch-page {
-          min-height: 100vh;
-          padding: 8rem 0 6rem;
-          position: relative;
-        }
-        .ambient-background {
-          position: fixed; inset: 0; z-index: 1; pointer-events: none;
-        }
-        .grid-overlay {
-          position: absolute; inset: 0;
-          background-size: 50px 50px;
-          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-          mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-        }
-        .glow {
-          position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
-        }
-        .glow-blue { width: 60vw; height: 60vh; background: var(--accent-blue); top: -20%; right: -20%; }
-        .glow-cyan { width: 50vw; height: 50vh; background: var(--accent-cyan); bottom: -10%; left: -20%; }
-        
-        .phase-content { max-width: 900px; margin: 0 auto; }
-        .phase-title-bar { margin-bottom: 3rem; }
-        .phase-title-bar h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .phase-title-bar p { color: var(--text-tertiary); font-size: 1.1rem; }
-        
-        .intake-form { display: flex; flex-direction: column; gap: 1.5rem; }
-        .intake-question { padding: 2rem; transition: transform 0.3s, box-shadow 0.3s; }
-        .intake-question:focus-within { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 1px var(--accent-blue); }
-        .intake-q-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .intake-q-icon { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;}
-        .intake-q-header label { font-size: 1.1rem; font-weight: 500;}
-        
-        .recommendation-card { background: linear-gradient(145deg, rgba(16,185,129,0.05) 0%, rgba(6,182,212,0.1) 100%); border-width: 1px; border-color: rgba(6,182,212,0.3); padding: 3rem;}
-        .pains-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;}
-        .pain-result-card { padding: 2rem; display: flex; flex-direction: column;}
-        
-        .blueprint-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr 1fr;}
-        
-        .interactive-border { position: relative; overflow: hidden;}
-        .interactive-border::before {
-           content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-           background: conic-gradient(from 0deg, transparent 0 340deg, var(--accent-cyan) 360deg);
-           animation: rotateBorder 4s linear infinite; opacity: 0.2;
-        }
-        @keyframes rotateBorder { 100% { transform: rotate(360deg); } }
-      `}</style>
+      
     </div>
   );
 }
