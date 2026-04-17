@@ -1,11 +1,15 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
 
   return (
+    <>
+    <Navbar />
     <div className="pricing-page">
       {/* ── HERO ── */}
       <section className="pricing-hero">
@@ -209,5 +213,7 @@ export default function PricingPage() {
         }
       `}</style>
     </div>
+    <Footer />
+    </>
   );
 }

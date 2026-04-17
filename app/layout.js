@@ -1,6 +1,5 @@
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata = {
   title: 'MetaBox — Your AI Co-Founder | Business-in-a-Box',
@@ -17,11 +16,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main style={{ minHeight: '100vh', paddingTop: 'var(--nav-height)' }}>
+        <AuthProvider>
           {children}
-        </main>
-        <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

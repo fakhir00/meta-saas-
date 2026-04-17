@@ -1,11 +1,12 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-/* ---- Mini Chart Component ---- */
-function MiniChart({ data, color, height = 60 }) {
+/* ── Mini Chart ── */
+function MiniChart({ data, color, height = 50 }) {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -14,827 +15,593 @@ function MiniChart({ data, color, height = 60 }) {
     canvas.height = height * 2;
     ctx.scale(2, 2);
     const w = canvas.offsetWidth;
-
     const max = Math.max(...data);
     const min = Math.min(...data);
     const range = max - min || 1;
     const stepX = w / (data.length - 1);
-
-    // Gradient fill
     const gradient = ctx.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, color + '30');
     gradient.addColorStop(1, color + '00');
-
     ctx.beginPath();
-    ctx.moveTo(0, height);
     data.forEach((v, i) => {
       const x = i * stepX;
       const y = height - ((v - min) / range) * (height * 0.8) - height * 0.1;
       if (i === 0) ctx.moveTo(x, y);
       else {
-        const prevX = (i - 1) * stepX;
-        const prevY = height - ((data[i - 1] - min) / range) * (height * 0.8) - height * 0.1;
-        const cpX = (prevX + x) / 2;
-        ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+        const px = (i - 1) * stepX;
+        const py = height - ((data[i - 1] - min) / range) * (height * 0.8) - height * 0.1;
+        ctx.bezierCurveTo((px + x) / 2, py, (px + x) / 2, y, x, y);
       }
     });
     ctx.lineTo(w, height);
     ctx.lineTo(0, height);
     ctx.fillStyle = gradient;
     ctx.fill();
-
-    // Line
     ctx.beginPath();
     data.forEach((v, i) => {
       const x = i * stepX;
       const y = height - ((v - min) / range) * (height * 0.8) - height * 0.1;
       if (i === 0) ctx.moveTo(x, y);
       else {
-        const prevX = (i - 1) * stepX;
-        const prevY = height - ((data[i - 1] - min) / range) * (height * 0.8) - height * 0.1;
-        const cpX = (prevX + x) / 2;
-        ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+        const px = (i - 1) * stepX;
+        const py = height - ((data[i - 1] - min) / range) * (height * 0.8) - height * 0.1;
+        ctx.bezierCurveTo((px + x) / 2, py, (px + x) / 2, y, x, y);
       }
     });
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    // End dot
-    const lastX = (data.length - 1) * stepX;
-    const lastY = height - ((data[data.length - 1] - min) / range) * (height * 0.8) - height * 0.1;
-    ctx.beginPath();
-    ctx.arc(lastX, lastY, 3, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
   }, [data, color, height]);
-
   return <canvas ref={canvasRef} style={{ width: '100%', height: `${height}px` }} />;
 }
 
-/* ---- Bar Chart ---- */
-function BarChart({ data, labels, color, height = 180 }) {
-  const maxVal = Math.max(...data);
-  return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: `${height}px`, padding: '0 4px' }}>
-      {data.map((v, i) => (
-        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', height: '100%', justifyContent: 'flex-end' }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>{v}</span>
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '36px',
-              height: `${(v / maxVal) * 80}%`,
-              background: `linear-gradient(180deg, ${color}, ${color}60)`,
-              borderRadius: '4px 4px 0 0',
-              transition: 'height 0.5s ease',
-              minHeight: '4px',
-            }}
-          />
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>{labels[i]}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ---- Chat Interface ---- */
-function ChatInterface() {
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: 'Welcome back, Strategic Director! 👋 Your SaaS is performing well. MRR grew 12% this week. How can I help you today?' },
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
-
-  const aiResponses = [
-    'Based on your current metrics, I recommend focusing on converting the 8 warm leads in your pipeline. Want me to draft personalized follow-up emails?',
-    'Your churn rate decreased by 2.1% this month — great work on the onboarding flow improvements! The automated welcome sequence is performing 34% above benchmark.',
-    'I analyzed your competitor landscape. Three new entrants have appeared, but none offer your automated document collection feature. This remains your key differentiator.',
-    'Your top-performing outreach template has a 18% reply rate. I suggest A/B testing the subject line with a more specific pain point. Want me to generate variations?',
-    'Revenue forecast for next month: $4,200-$4,800 based on current pipeline velocity. You need 3 more conversions to hit your $5K target.',
-  ];
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages(prev => [...prev, { role: 'user', text: input }]);
-    setInput('');
-    setIsTyping(true);
-    setTimeout(() => {
-      const response = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-      setMessages(prev => [...prev, { role: 'ai', text: response }]);
-      setIsTyping(false);
-    }, 1500 + Math.random() * 1500);
-  };
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  return (
-    <div className="chat-container">
-      <div className="chat-messages">
-        {messages.map((msg, i) => (
-          <div key={i} className={`chat-msg ${msg.role}`}>
-            <div className="chat-avatar">
-              {msg.role === 'ai' ? '🤖' : '👤'}
-            </div>
-            <div className="chat-bubble">{msg.text}</div>
-          </div>
-        ))}
-        {isTyping && (
-          <div className="chat-msg ai">
-            <div className="chat-avatar">🤖</div>
-            <div className="chat-bubble typing">
-              <span /><span /><span />
-            </div>
-          </div>
-        )}
-        <div ref={chatEndRef} />
-      </div>
-      <div className="chat-input-row">
-        <input
-          type="text"
-          className="input-field"
-          placeholder="Ask your AI Co-Founder..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-        />
-        <button className="btn btn-primary" onClick={handleSend}>Send</button>
-      </div>
-    </div>
-  );
-}
-
-/* ===== DASHBOARD PAGE ===== */
+/* ══════════════════════════════════════════
+   DASHBOARD PAGE
+   ══════════════════════════════════════════ */
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const { user, loading, logout, getProjects, createProject, deleteProject } = useAuth();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('projects');
+  const [projects, setProjects] = useState([]);
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const metrics = [
-    { label: 'Monthly Revenue', value: '$3,847', change: '+12.4%', positive: true, icon: '💰', data: [1200, 1800, 2100, 2400, 2900, 3200, 3847], color: '#10b981' },
-    { label: 'Active Users', value: '148', change: '+8.2%', positive: true, icon: '👥', data: [45, 62, 78, 95, 110, 128, 148], color: '#3b82f6' },
-    { label: 'Churn Rate', value: '2.3%', change: '-0.8%', positive: true, icon: '📉', data: [5.2, 4.8, 4.1, 3.7, 3.2, 3.1, 2.3], color: '#f59e0b' },
-    { label: 'Lead Pipeline', value: '34', change: '+15', positive: true, icon: '🎯', data: [8, 12, 15, 19, 22, 28, 34], color: '#8b5cf6' },
-  ];
+  useEffect(() => {
+    if (!loading && !user) router.push('/login');
+  }, [user, loading, router]);
 
-  const recentActivity = [
-    { time: '2 min ago', text: 'New user signed up: sarah@acme.co', type: 'user' },
-    { time: '15 min ago', text: 'Lead reply received from John at TechCorp', type: 'lead' },
-    { time: '1 hour ago', text: 'Outreach batch #12 completed (50 emails)', type: 'outreach' },
-    { time: '3 hours ago', text: 'Customer upgraded to Growth plan', type: 'revenue' },
-    { time: '5 hours ago', text: 'AI onboarding assisted 3 new clients', type: 'ai' },
-    { time: '1 day ago', text: 'Weekly report generated and emailed', type: 'report' },
-  ];
+  useEffect(() => {
+    if (user) setProjects(getProjects());
+  }, [user]);
 
-  const outreachCampaigns = [
-    { name: 'Cold Email Batch #12', status: 'Active', sent: 200, replies: 18, meetings: 5, progress: 72 },
-    { name: 'LinkedIn Campaign #3', status: 'Active', sent: 150, replies: 24, meetings: 8, progress: 85 },
-    { name: 'Follow-up Sequence #7', status: 'Paused', sent: 80, replies: 12, meetings: 3, progress: 45 },
-    { name: 'Referral Outreach #1', status: 'Completed', sent: 50, replies: 15, meetings: 6, progress: 100 },
-  ];
+  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>Loading...</div>;
+  if (!user) return null;
+
+  const handleCreate = (e) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    const p = createProject(newName.trim(), newDesc.trim());
+    if (p) {
+      setProjects(prev => [...prev, p]);
+      setNewName('');
+      setNewDesc('');
+      setShowNewProject(false);
+    }
+  };
+
+  const handleDelete = (id) => {
+    deleteProject(id);
+    setProjects(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleLogout = () => { logout(); router.push('/'); };
+
+  const statusColors = { draft: '#f59e0b', building: '#3b82f6', live: '#10b981', paused: '#64748b' };
 
   const sidebarItems = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'ai', label: 'AI Command Center', icon: '🤖' },
-    { id: 'blueprint', label: 'Blueprint', icon: '📐' },
-    { id: 'outreach', label: 'Outreach Tracker', icon: '📧' },
+    { id: 'projects', label: 'My Projects', icon: '📦' },
+    { id: 'overview', label: 'Analytics', icon: '📊' },
+    { id: 'ai', label: 'AI Assistant', icon: '🤖' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
+  const metrics = [
+    { label: 'Total Projects', value: projects.length, icon: '📦', data: [1, 2, 3, 4, projects.length], color: '#3b82f6' },
+    { label: 'Live Projects', value: projects.filter(p => p.status === 'live').length, icon: '🟢', data: [0, 1, 1, 2, projects.filter(p => p.status === 'live').length], color: '#10b981' },
+    { label: 'Draft Projects', value: projects.filter(p => p.status === 'draft').length, icon: '📝', data: [1, 2, 3, 2, projects.filter(p => p.status === 'draft').length], color: '#f59e0b' },
+  ];
+
   return (
-    <div className="dashboard">
-      {/* Sidebar */}
-      <aside className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <h3>🎯 Command Center</h3>
-          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
+    <div className="dash">
+      {/* ── Sidebar ── */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sb-top">
+          <Link href="/" className="sb-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+            MetaBox
+          </Link>
+          <button className="sb-close" onClick={() => setSidebarOpen(false)}>✕</button>
         </div>
-        <nav className="sidebar-nav">
-          {sidebarItems.map(item => (
-            <button
-              key={item.id}
-              className={`sidebar-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">{item.icon}</span>
-              {item.label}
+
+        <nav className="sb-nav">
+          {sidebarItems.map(s => (
+            <button key={s.id} className={`sb-item ${activeTab === s.id ? 'active' : ''}`} onClick={() => { setActiveTab(s.id); setSidebarOpen(false); }}>
+              <span>{s.icon}</span> {s.label}
             </button>
           ))}
         </nav>
-        <div className="sidebar-footer">
-          <div className="sidebar-plan">
-            <span className="badge badge-green">Growth Plan</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>23 days remaining</span>
+
+        <div className="sb-bottom">
+          <div className="sb-user">
+            <div className="sb-avatar">{user.name?.charAt(0).toUpperCase()}</div>
+            <div className="sb-user-info">
+              <strong>{user.name}</strong>
+              <span>{user.email}</span>
+            </div>
           </div>
+          <button className="sb-logout" onClick={handleLogout}>Sign Out</button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="dash-main">
-        <div className="dash-topbar">
-          <button className="dash-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <span /><span /><span />
-          </button>
-          <div>
+      {/* ── Main ── */}
+      <main className="dash-main">
+        <header className="dash-header">
+          <div className="dash-header-left">
+            <button className="mobile-menu" onClick={() => setSidebarOpen(true)}>
+              <span /><span /><span />
+            </button>
             <h2>{sidebarItems.find(s => s.id === activeTab)?.icon} {sidebarItems.find(s => s.id === activeTab)?.label}</h2>
           </div>
-          <div className="dash-topbar-right">
-            <span className="badge badge-blue">🔔 3 notifications</span>
+          <div className="dash-header-right">
+            <Link href="/launch" className="header-cta">+ New Box</Link>
           </div>
-        </div>
+        </header>
 
         <div className="dash-content">
-          {/* ===== OVERVIEW TAB ===== */}
-          {activeTab === 'overview' && (
-            <div className="animate-fade-in">
-              <div className="metrics-grid">
+
+          {/* ═══ PROJECTS TAB ═══ */}
+          {activeTab === 'projects' && (
+            <div className="fade-in">
+              {/* Quick Stats */}
+              <div className="metrics-row">
                 {metrics.map((m, i) => (
-                  <div key={i} className="glass-card metric-card">
+                  <div key={i} className="metric-card">
                     <div className="metric-top">
                       <span className="metric-icon">{m.icon}</span>
-                      <span className={`metric-change ${m.positive ? 'positive' : 'negative'}`}>{m.change}</span>
                     </div>
-                    <div className="metric-value">{m.value}</div>
-                    <div className="metric-label">{m.label}</div>
-                    <div className="metric-chart">
-                      <MiniChart data={m.data} color={m.color} height={50} />
-                    </div>
+                    <div className="metric-val">{m.value}</div>
+                    <div className="metric-lbl">{m.label}</div>
+                    <MiniChart data={m.data} color={m.color} height={40} />
                   </div>
                 ))}
               </div>
 
-              <div className="overview-grid">
-                <div className="glass-card">
-                  <h3>📈 Revenue Trend (Last 7 Months)</h3>
-                  <div style={{ marginTop: '1.25rem' }}>
-                    <BarChart
-                      data={[1200, 1800, 2100, 2400, 2900, 3200, 3847]}
-                      labels={['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr']}
-                      color="#10b981"
-                    />
-                  </div>
-                </div>
-
-                <div className="glass-card">
-                  <h3>🕐 Recent Activity</h3>
-                  <div className="activity-list">
-                    {recentActivity.map((a, i) => (
-                      <div key={i} className="activity-item">
-                        <span className="activity-dot" />
-                        <div>
-                          <p>{a.text}</p>
-                          <span className="activity-time">{a.time}</span>
-                        </div>
+              {/* New Project Modal */}
+              {showNewProject && (
+                <div className="modal-overlay" onClick={() => setShowNewProject(false)}>
+                  <div className="modal-card" onClick={e => e.stopPropagation()}>
+                    <h3>Create New Project</h3>
+                    <form onSubmit={handleCreate}>
+                      <label>
+                        <span>Project Name</span>
+                        <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="My SaaS idea..." autoFocus />
+                      </label>
+                      <label>
+                        <span>Description (optional)</span>
+                        <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="A brief description of what it does..." rows={3} />
+                      </label>
+                      <div className="modal-actions">
+                        <button type="button" className="btn-cancel" onClick={() => setShowNewProject(false)}>Cancel</button>
+                        <button type="submit" className="btn-create">Create Project</button>
                       </div>
-                    ))}
+                    </form>
                   </div>
+                </div>
+              )}
+
+              {/* Project List */}
+              <div className="project-header">
+                <h3>All Projects ({projects.length})</h3>
+                <button className="btn-new" onClick={() => setShowNewProject(true)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  New Project
+                </button>
+              </div>
+
+              {projects.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📦</div>
+                  <h3>No projects yet</h3>
+                  <p>Create your first Box to get started with MetaBox AI</p>
+                  <button className="btn-new large" onClick={() => setShowNewProject(true)}>Create Your First Project</button>
+                </div>
+              ) : (
+                <div className="project-grid">
+                  {projects.map(p => (
+                    <div key={p.id} className="project-card">
+                      <div className="pc-top">
+                        <div className="pc-status" style={{ background: statusColors[p.status] || '#64748b' }}>{p.status}</div>
+                        <button className="pc-delete" onClick={() => handleDelete(p.id)} title="Delete project">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                      </div>
+                      <h4>{p.name}</h4>
+                      {p.description && <p className="pc-desc">{p.description}</p>}
+                      <div className="pc-meta">
+                        <span>Created {new Date(p.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <Link href="/launch" className="pc-launch">Open in Builder →</Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ ANALYTICS TAB ═══ */}
+          {activeTab === 'overview' && (
+            <div className="fade-in">
+              <div className="analytics-placeholder">
+                <div className="empty-icon">📊</div>
+                <h3>Analytics Dashboard</h3>
+                <p>Your project analytics will appear here once you have active projects generating traffic and revenue.</p>
+                <div className="demo-stats">
+                  <div className="demo-stat"><strong>$0</strong><span>MRR</span></div>
+                  <div className="demo-stat"><strong>0</strong><span>Active Users</span></div>
+                  <div className="demo-stat"><strong>0%</strong><span>Churn Rate</span></div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ===== AI TAB ===== */}
+          {/* ═══ AI ASSISTANT TAB ═══ */}
           {activeTab === 'ai' && (
-            <div className="animate-fade-in">
-              <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-                <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span>🤖</span>
-                  <h4>AI Co-Founder Assistant</h4>
-                  <span className="badge badge-green" style={{ marginLeft: 'auto' }}>Online</span>
-                </div>
-                <ChatInterface />
-              </div>
+            <div className="fade-in">
+              <AIChat userName={user.name} />
             </div>
           )}
 
-          {/* ===== BLUEPRINT TAB ===== */}
-          {activeTab === 'blueprint' && (
-            <div className="animate-fade-in">
-              <div className="glass-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h3>📐 Current Blueprint</h3>
-                  <span className="badge badge-green">Active</span>
-                </div>
-                <div className="bp-info">
-                  <h2 style={{ marginBottom: '0.5rem' }}>ClientFlow — Intelligent Client Onboarding</h2>
-                  <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem' }}>Turn chaotic client intake into a 5-minute automated workflow</p>
-                </div>
-                <div className="bp-stats-grid">
-                  {[
-                    { label: 'Architecture', value: 'Next.js + Express' },
-                    { label: 'Database', value: 'PostgreSQL + Prisma' },
-                    { label: 'Auth', value: 'NextAuth.js + JWT' },
-                    { label: 'Hosting', value: 'Vercel + Railway' },
-                    { label: 'Status', value: 'MVP Ready' },
-                    { label: 'Last Updated', value: 'Today' },
-                  ].map((s, i) => (
-                    <div key={i} className="bp-stat">
-                      <span className="bp-stat-label">{s.label}</span>
-                      <span className="bp-stat-value">{s.value}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '1.5rem' }}>
-                  <Link href="/launch" className="btn btn-secondary">Regenerate Blueprint</Link>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ===== OUTREACH TAB ===== */}
-          {activeTab === 'outreach' && (
-            <div className="animate-fade-in">
-              <div className="glass-card">
-                <h3 style={{ marginBottom: '1.25rem' }}>📧 Outreach Campaigns</h3>
-                <div className="campaigns-table">
-                  <div className="table-header">
-                    <span>Campaign</span>
-                    <span>Status</span>
-                    <span>Sent</span>
-                    <span>Replies</span>
-                    <span>Meetings</span>
-                    <span>Progress</span>
-                  </div>
-                  {outreachCampaigns.map((c, i) => (
-                    <div key={i} className="table-row">
-                      <span className="campaign-name">{c.name}</span>
-                      <span>
-                        <span className={`badge ${c.status === 'Active' ? 'badge-green' : c.status === 'Completed' ? 'badge-blue' : 'badge-orange'}`}>{c.status}</span>
-                      </span>
-                      <span>{c.sent}</span>
-                      <span>{c.replies}</span>
-                      <span>{c.meetings}</span>
-                      <span>
-                        <div className="progress-track">
-                          <div className="progress-fill" style={{ width: `${c.progress}%` }} />
-                        </div>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="glass-card" style={{ marginTop: '1.5rem' }}>
-                <h3>📊 Outreach Performance</h3>
-                <div style={{ marginTop: '1.25rem' }}>
-                  <BarChart
-                    data={[50, 80, 120, 150, 200, 180, 200]}
-                    labels={['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7']}
-                    color="#3b82f6"
-                    height={160}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ===== SETTINGS TAB ===== */}
+          {/* ═══ SETTINGS TAB ═══ */}
           {activeTab === 'settings' && (
-            <div className="animate-fade-in">
-              <div className="glass-card">
-                <h3 style={{ marginBottom: '1.5rem' }}>⚙️ Platform Settings</h3>
+            <div className="fade-in">
+              <div className="settings-section">
+                <h3>Profile</h3>
                 <div className="settings-grid">
-                  <div className="setting-group">
-                    <label>Business Name</label>
-                    <input type="text" className="input-field" defaultValue="ClientFlow" />
+                  <div className="settings-field">
+                    <span>Name</span>
+                    <div className="settings-val">{user.name}</div>
                   </div>
-                  <div className="setting-group">
-                    <label>Contact Email</label>
-                    <input type="email" className="input-field" defaultValue="founder@clientflow.io" />
+                  <div className="settings-field">
+                    <span>Email</span>
+                    <div className="settings-val">{user.email}</div>
                   </div>
-                  <div className="setting-group">
-                    <label>OpenAI API Key</label>
-                    <input type="password" className="input-field" defaultValue="sk-••••••••••••" />
+                  <div className="settings-field">
+                    <span>Member Since</span>
+                    <div className="settings-val">{new Date(user.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="setting-group">
-                    <label>Timezone</label>
-                    <select className="input-field">
-                      <option>UTC-5 (Eastern Time)</option>
-                      <option>UTC-8 (Pacific Time)</option>
-                      <option>UTC+0 (GMT)</option>
-                      <option>UTC+5 (Pakistan)</option>
-                    </select>
+                  <div className="settings-field">
+                    <span>Plan</span>
+                    <div className="settings-val"><span className="plan-badge">Free Starter</span></div>
                   </div>
                 </div>
-                <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem' }}>
-                  <button className="btn btn-primary">Save Changes</button>
-                  <button className="btn btn-secondary">Reset</button>
-                </div>
+              </div>
+              <div className="settings-section danger">
+                <h3>Danger Zone</h3>
+                <p>Signing out will return you to the landing page. Your projects are saved locally.</p>
+                <button className="btn-danger" onClick={handleLogout}>Sign Out</button>
               </div>
             </div>
           )}
         </div>
+      </main>
+
+      {/* ═══ STYLES ═══ */}
+      <style jsx>{`
+        .dash { display: flex; min-height: 100vh; background: #050811; }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── Sidebar ── */
+        .sidebar {
+          width: 260px; flex-shrink: 0; display: flex; flex-direction: column;
+          background: rgba(255,255,255,0.015); border-right: 1px solid rgba(255,255,255,0.06);
+          padding: 1.5rem; position: sticky; top: 0; height: 100vh;
+        }
+        .sb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+        .sb-logo {
+          display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem;
+          color: #f1f5f9; text-decoration: none; font-style: italic; letter-spacing: -0.03em;
+        }
+        .sb-close { display: none; background: none; border: none; color: #64748b; font-size: 1.2rem; cursor: pointer; }
+        .sb-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sb-item {
+          display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px;
+          background: transparent; border: none; color: #94a3b8; font-size: 0.88rem; font-weight: 500;
+          cursor: pointer; transition: all 0.2s; text-align: left; width: 100%;
+        }
+        .sb-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
+        .sb-item.active { background: rgba(59,130,246,0.1); color: #60a5fa; font-weight: 600; }
+        .sb-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem; }
+        .sb-user { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+        .sb-avatar {
+          width: 36px; height: 36px; border-radius: 10px;
+          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+          display: flex; align-items: center; justify-content: center;
+          font-weight: 800; color: #fff; font-size: 0.9rem;
+        }
+        .sb-user-info strong { display: block; color: #e2e8f0; font-size: 0.85rem; }
+        .sb-user-info span { font-size: 0.72rem; color: #64748b; }
+        .sb-logout {
+          width: 100%; padding: 8px; border-radius: 8px; background: rgba(239,68,68,0.06);
+          border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-size: 0.8rem;
+          font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .sb-logout:hover { background: rgba(239,68,68,0.12); }
+
+        /* ── Main ── */
+        .dash-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .dash-header {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 1rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+          position: sticky; top: 0; background: rgba(5,8,17,0.9); backdrop-filter: blur(12px);
+          z-index: 50;
+        }
+        .dash-header-left { display: flex; align-items: center; gap: 1rem; }
+        .dash-header h2 { font-size: 1.15rem; font-weight: 700; color: #f1f5f9; margin: 0; }
+        .mobile-menu {
+          display: none; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 4px;
+        }
+        .mobile-menu span { width: 18px; height: 2px; background: #94a3b8; border-radius: 2px; }
+        .header-cta {
+          padding: 8px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 700;
+          background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+          text-decoration: none; transition: 0.3s;
+        }
+        .header-cta:hover { box-shadow: 0 4px 18px rgba(59,130,246,0.35); color: #fff; }
+
+        .dash-content { padding: 2rem; flex: 1; }
+
+        /* ── Metrics Row ── */
+        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .metric-card {
+          padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+        .metric-top { margin-bottom: 0.75rem; }
+        .metric-icon { font-size: 1.5rem; }
+        .metric-val { font-size: 2rem; font-weight: 900; color: #f1f5f9; }
+        .metric-lbl { font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem; }
+
+        /* ── Project Header ── */
+        .project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .project-header h3 { font-size: 1.1rem; color: #f1f5f9; font-weight: 700; margin: 0; }
+        .btn-new {
+          display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px;
+          background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
+          color: #60a5fa; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-new:hover { background: rgba(59,130,246,0.18); }
+        .btn-new.large { padding: 12px 24px; font-size: 0.95rem; }
+
+        /* ── Empty State ── */
+        .empty-state {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 5rem 2rem; text-align: center;
+        }
+        .empty-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .empty-state h3 { font-size: 1.4rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+        .empty-state p { color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; }
+
+        /* ── Project Grid ── */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .project-card {
+          padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06); transition: 0.3s;
+        }
+        .project-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .pc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .pc-status {
+          display: inline-block; padding: 3px 10px; border-radius: 100px;
+          font-size: 0.7rem; font-weight: 700; color: #fff; text-transform: uppercase;
+        }
+        .pc-delete {
+          background: none; border: none; color: #475569; cursor: pointer; padding: 4px;
+          transition: 0.2s; border-radius: 6px;
+        }
+        .pc-delete:hover { color: #f87171; background: rgba(239,68,68,0.08); }
+        .project-card h4 { font-size: 1.1rem; color: #f1f5f9; font-weight: 700; margin-bottom: 0.4rem; }
+        .pc-desc { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem; line-height: 1.5; }
+        .pc-meta { font-size: 0.75rem; color: #475569; margin-bottom: 1rem; }
+        .pc-launch {
+          display: block; text-align: center; padding: 10px; border-radius: 10px;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+          color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+          transition: 0.2s;
+        }
+        .pc-launch:hover { background: rgba(59,130,246,0.08); color: #60a5fa; border-color: rgba(59,130,246,0.2); }
+
+        /* ── Modal ── */
+        .modal-overlay {
+          position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+          display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem;
+        }
+        .modal-card {
+          width: 100%; max-width: 480px; padding: 2.5rem; border-radius: 20px;
+          background: #0c1222; border: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-card h3 { font-size: 1.3rem; color: #f1f5f9; margin-bottom: 1.5rem; }
+        .modal-card form { display: flex; flex-direction: column; gap: 1.25rem; }
+        .modal-card label span {
+          display: block; font-size: 0.82rem; font-weight: 600; color: #94a3b8;
+          margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .modal-card input, .modal-card textarea {
+          width: 100%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          color: #f1f5f9; outline: none; resize: vertical; font-family: inherit;
+        }
+        .modal-card input:focus, .modal-card textarea:focus { border-color: #3b82f6; }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; }
+        .btn-cancel {
+          padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-weight: 600;
+          cursor: pointer; font-size: 0.9rem;
+        }
+        .btn-create {
+          padding: 10px 24px; border-radius: 10px;
+          background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+          border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+        }
+        .btn-create:hover { box-shadow: 0 4px 18px rgba(59,130,246,0.35); }
+
+        /* ── Analytics Placeholder ── */
+        .analytics-placeholder {
+          display: flex; flex-direction: column; align-items: center; padding: 4rem 2rem; text-align: center;
+        }
+        .analytics-placeholder h3 { font-size: 1.3rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+        .analytics-placeholder p { color: #64748b; max-width: 500px; margin-bottom: 2rem; }
+        .demo-stats { display: flex; gap: 3rem; }
+        .demo-stat strong { display: block; font-size: 2rem; font-weight: 900; color: #f1f5f9; }
+        .demo-stat span { font-size: 0.8rem; color: #64748b; }
+
+        /* ── Settings ── */
+        .settings-section {
+          padding: 2rem; border-radius: 16px; background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.5rem;
+        }
+        .settings-section h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1.5rem; }
+        .settings-section.danger { border-color: rgba(239,68,68,0.15); }
+        .settings-section.danger h3 { color: #f87171; }
+        .settings-section p { color: #64748b; font-size: 0.9rem; margin-bottom: 1rem; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .settings-field span { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+        .settings-val { font-size: 0.95rem; color: #e2e8f0; font-weight: 500; }
+        .plan-badge {
+          display: inline-block; padding: 3px 10px; border-radius: 6px;
+          background: rgba(59,130,246,0.1); color: #60a5fa; font-size: 0.8rem; font-weight: 600;
+        }
+        .btn-danger {
+          padding: 10px 24px; border-radius: 10px; background: rgba(239,68,68,0.08);
+          border: 1px solid rgba(239,68,68,0.2); color: #f87171; font-weight: 600;
+          font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-danger:hover { background: rgba(239,68,68,0.15); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+          .sidebar {
+            position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200;
+            transition: left 0.3s ease; background: #0c1222;
+          }
+          .sidebar.open { left: 0; }
+          .sb-close { display: block; }
+          .mobile-menu { display: flex; }
+          .metrics-row { grid-template-columns: 1fr; }
+          .project-grid { grid-template-columns: 1fr; }
+          .settings-grid { grid-template-columns: 1fr; }
+          .dash-content { padding: 1.25rem; }
+          .demo-stats { flex-direction: column; gap: 1.5rem; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ── AI Chat Sub-Component ── */
+function AIChat({ userName }) {
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: `Welcome, ${userName}! 👋 I'm your MetaBox AI assistant. Ask me anything — from product strategy to code questions.` },
+  ]);
+  const [input, setInput] = useState('');
+  const [typing, setTyping] = useState(false);
+  const endRef = useRef(null);
+
+  const responses = [
+    'Based on current market trends, I\'d recommend focusing on a B2B vertical SaaS. The pain points are clearer and customers are willing to pay more.',
+    'Great question! For your MVP, I suggest starting with just 3 core features. Anything more and you risk delaying launch without meaningful learnings.',
+    'I analyzed your project structure. Consider adding a webhook integration — it\'s a high-value feature that enterprise customers consistently request.',
+    'Your pricing looks competitive. One suggestion: add a usage-based component to the Studio tier. It aligns incentives and grows with your customers.',
+    'For outreach, the most effective channel right now is LinkedIn DMs + cold email combos. I can draft templates if you\'d like.',
+  ];
+
+  const send = () => {
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { role: 'user', text: input }]);
+    setInput('');
+    setTyping(true);
+    setTimeout(() => {
+      setMessages(prev => [...prev, { role: 'ai', text: responses[Math.floor(Math.random() * responses.length)] }]);
+      setTyping(false);
+    }, 1200 + Math.random() * 1000);
+  };
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  return (
+    <div className="chat-wrap">
+      <div className="chat-messages">
+        {messages.map((m, i) => (
+          <div key={i} className={`chat-row ${m.role}`}>
+            <div className="chat-ava">{m.role === 'ai' ? '🤖' : '👤'}</div>
+            <div className="chat-bubble">{m.text}</div>
+          </div>
+        ))}
+        {typing && (
+          <div className="chat-row ai">
+            <div className="chat-ava">🤖</div>
+            <div className="chat-bubble typing"><span /><span /><span /></div>
+          </div>
+        )}
+        <div ref={endRef} />
+      </div>
+      <div className="chat-input-row">
+        <input
+          type="text" placeholder="Ask your AI co-founder..." value={input}
+          onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+        />
+        <button onClick={send}>Send</button>
       </div>
 
       <style jsx>{`
-        .dashboard {
-          display: flex;
-          min-height: calc(100vh - var(--nav-height));
-          background: var(--bg-primary);
+        .chat-wrap {
+          display: flex; flex-direction: column; height: calc(100vh - 160px);
+          border-radius: 16px; background: rgba(255,255,255,0.015);
+          border: 1px solid rgba(255,255,255,0.06); overflow: hidden;
         }
-
-        /* Sidebar */
-        .dash-sidebar {
-          width: var(--sidebar-width);
-          min-width: var(--sidebar-width);
-          background: var(--bg-secondary);
-          border-right: 1px solid var(--border-glass);
-          display: flex;
-          flex-direction: column;
-          position: sticky;
-          top: var(--nav-height);
-          height: calc(100vh - var(--nav-height));
-        }
-        .sidebar-header {
-          padding: 1.25rem;
-          border-bottom: 1px solid var(--border-glass);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .sidebar-header h3 {
-          font-size: 1rem;
-        }
-        .sidebar-close {
-          display: none;
-          background: none;
-          color: var(--text-tertiary);
-          font-size: 1.2rem;
-        }
-        .sidebar-nav {
-          flex: 1;
-          padding: 0.75rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-        .sidebar-item {
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
-          padding: 0.7rem 0.9rem;
-          border-radius: var(--radius-md);
-          background: transparent;
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-          font-weight: 500;
-          transition: all var(--transition-fast);
-          text-align: left;
-          width: 100%;
-        }
-        .sidebar-item:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: var(--text-primary);
-        }
-        .sidebar-item.active {
-          background: rgba(59, 130, 246, 0.1);
-          color: var(--accent-blue);
-          font-weight: 600;
-        }
-        .sidebar-icon {
-          font-size: 1.1rem;
-        }
-        .sidebar-footer {
-          padding: 1rem;
-          border-top: 1px solid var(--border-glass);
-        }
-        .sidebar-plan {
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-        }
-
-        /* Main */
-        .dash-main {
-          flex: 1;
-          min-width: 0;
-        }
-        .dash-topbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1rem 1.5rem;
-          border-bottom: 1px solid var(--border-glass);
-          background: var(--bg-secondary);
-          position: sticky;
-          top: var(--nav-height);
-          z-index: 10;
-        }
-        .dash-topbar h2 {
-          font-size: 1.1rem;
-        }
-        .dash-menu-btn {
-          display: none;
-          flex-direction: column;
-          gap: 4px;
-          background: none;
-          padding: 4px;
-        }
-        .dash-menu-btn span {
-          display: block;
-          width: 20px;
-          height: 2px;
-          background: var(--text-primary);
-          border-radius: 2px;
-        }
-        .dash-content {
-          padding: 1.5rem;
-        }
-
-        /* Metrics */
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-        .metric-card {
-          padding: 1.25rem;
-        }
-        .metric-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.75rem;
-        }
-        .metric-icon {
-          font-size: 1.5rem;
-        }
-        .metric-change {
-          font-size: 0.8rem;
-          font-weight: 700;
-          padding: 0.15rem 0.5rem;
-          border-radius: var(--radius-full);
-        }
-        .metric-change.positive {
-          background: rgba(16, 185, 129, 0.15);
-          color: var(--accent-green);
-        }
-        .metric-change.negative {
-          background: rgba(239, 68, 68, 0.15);
-          color: var(--accent-red);
-        }
-        .metric-card .metric-value {
-          font-size: 1.75rem;
-          font-weight: 800;
-          color: var(--text-primary);
-        }
-        .metric-card .metric-label {
-          font-size: 0.82rem;
-          color: var(--text-tertiary);
-          margin-top: 0.2rem;
-          margin-bottom: 0.75rem;
-        }
-
-        /* Overview Grid */
-        .overview-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.5rem;
-        }
-
-        /* Activity */
-        .activity-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-          margin-top: 1rem;
-        }
-        .activity-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.75rem;
-          padding: 0.7rem 0;
-          border-bottom: 1px solid var(--border-glass);
-        }
-        .activity-item:last-child {
-          border-bottom: none;
-        }
-        .activity-dot {
-          width: 8px;
-          height: 8px;
-          min-width: 8px;
-          border-radius: 50%;
-          background: var(--accent-blue);
-          margin-top: 6px;
-        }
-        .activity-item p {
-          font-size: 0.88rem;
-          color: var(--text-secondary);
-        }
-        .activity-time {
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-        }
-
-        /* Chat */
-        .chat-container {
-          display: flex;
-          flex-direction: column;
-          height: 500px;
-        }
-        .chat-messages {
-          flex: 1;
-          overflow-y: auto;
-          padding: 1.25rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .chat-msg {
-          display: flex;
-          gap: 0.6rem;
-          max-width: 85%;
-        }
-        .chat-msg.user {
-          align-self: flex-end;
-          flex-direction: row-reverse;
-        }
-        .chat-avatar {
-          width: 32px;
-          height: 32px;
-          min-width: 32px;
-          border-radius: 50%;
-          background: var(--bg-tertiary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.9rem;
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .chat-row { display: flex; gap: 10px; align-items: flex-start; }
+        .chat-row.user { flex-direction: row-reverse; }
+        .chat-ava {
+          width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center;
+          justify-content: center; font-size: 1rem; background: rgba(255,255,255,0.04);
+          flex-shrink: 0;
         }
         .chat-bubble {
-          padding: 0.75rem 1rem;
-          border-radius: var(--radius-lg);
-          font-size: 0.9rem;
-          line-height: 1.5;
+          max-width: 70%; padding: 10px 16px; border-radius: 12px;
+          font-size: 0.9rem; line-height: 1.6; color: #e2e8f0;
+          background: rgba(255,255,255,0.04);
         }
-        .chat-msg.ai .chat-bubble {
-          background: var(--bg-tertiary);
-          color: var(--text-secondary);
-          border-bottom-left-radius: 4px;
+        .chat-row.user .chat-bubble { background: rgba(59,130,246,0.12); color: #f1f5f9; }
+        .typing span {
+          display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+          background: #64748b; margin: 0 2px; animation: bounce 1.4s infinite both;
         }
-        .chat-msg.user .chat-bubble {
-          background: var(--accent-blue);
-          color: white;
-          border-bottom-right-radius: 4px;
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+        .chat-input-row { display: flex; gap: 8px; padding: 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .chat-input-row input {
+          flex: 1; padding: 10px 16px; border-radius: 10px; font-size: 0.9rem;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          color: #f1f5f9; outline: none;
         }
-        .chat-bubble.typing {
-          display: flex;
-          gap: 4px;
-          padding: 0.75rem 1rem;
-        }
-        .chat-bubble.typing span {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: var(--text-tertiary);
-          animation: typingBounce 1.4s infinite ease-in-out;
-        }
-        .chat-bubble.typing span:nth-child(2) { animation-delay: 0.2s; }
-        .chat-bubble.typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typingBounce {
-          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-          40% { transform: scale(1); opacity: 1; }
-        }
-        .chat-input-row {
-          display: flex;
-          gap: 0.5rem;
-          padding: 1rem;
-          border-top: 1px solid var(--border-glass);
-        }
-
-        /* Campaigns Table */
-        .campaigns-table {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-        }
-        .table-header, .table-row {
-          display: grid;
-          grid-template-columns: 2fr 1fr 0.7fr 0.7fr 0.7fr 1fr;
-          gap: 1rem;
-          padding: 0.75rem 0;
-          align-items: center;
-          font-size: 0.88rem;
-        }
-        .table-header {
-          border-bottom: 1px solid var(--border-glass);
-          color: var(--text-tertiary);
-          font-weight: 600;
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .table-row {
-          border-bottom: 1px solid var(--border-glass);
-          color: var(--text-secondary);
-        }
-        .table-row:last-child {
-          border-bottom: none;
-        }
-        .campaign-name {
-          font-weight: 600;
-          color: var(--text-primary);
-        }
-        .progress-track {
-          width: 100%;
-          height: 6px;
-          background: var(--bg-tertiary);
-          border-radius: 3px;
-          overflow: hidden;
-        }
-        .progress-fill {
-          height: 100%;
-          background: var(--gradient-primary);
-          border-radius: 3px;
-          transition: width 0.5s ease;
-        }
-
-        /* Blueprint */
-        .bp-stats-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 0.75rem;
-        }
-        .bp-stat {
-          padding: 0.75rem;
-          background: rgba(0,0,0,0.2);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glass);
-        }
-        .bp-stat-label {
-          display: block;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-          margin-bottom: 0.25rem;
-        }
-        .bp-stat-value {
-          font-weight: 600;
-          color: var(--text-primary);
-          font-size: 0.9rem;
-        }
-
-        /* Settings */
-        .settings-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.25rem;
-        }
-        .setting-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .setting-group label {
-          font-weight: 600;
-          font-size: 0.88rem;
-          color: var(--text-secondary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-          .metrics-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          .overview-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-        @media (max-width: 768px) {
-          .dash-sidebar {
-            position: fixed;
-            left: 0;
-            top: var(--nav-height);
-            z-index: 100;
-            transform: translateX(-100%);
-            transition: transform var(--transition-base);
-          }
-          .dash-sidebar.open {
-            transform: translateX(0);
-          }
-          .sidebar-close {
-            display: block;
-          }
-          .dash-menu-btn {
-            display: flex;
-          }
-          .metrics-grid {
-            grid-template-columns: 1fr;
-          }
-          .table-header, .table-row {
-            grid-template-columns: 1.5fr 0.8fr 1fr;
-          }
-          .table-header span:nth-child(n+4),
-          .table-row span:nth-child(n+4) {
-            display: none;
-          }
-          .bp-stats-grid {
-            grid-template-columns: 1fr 1fr;
-          }
-          .settings-grid {
-            grid-template-columns: 1fr;
-          }
+        .chat-input-row input:focus { border-color: #3b82f6; }
+        .chat-input-row button {
+          padding: 10px 20px; border-radius: 10px;
+          background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+          border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer;
         }
       `}</style>
     </div>

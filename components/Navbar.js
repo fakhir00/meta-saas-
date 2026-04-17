@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -26,14 +28,20 @@ export default function Navbar() {
           <div className="nav-links">
             <Link href="/" className="nav-link">Home</Link>
             <Link href="/launch" className="nav-link">Launch</Link>
-            <Link href="/dashboard" className="nav-link">Dashboard</Link>
             <Link href="#pricing" className="nav-link">Pricing</Link>
             <Link href="/about" className="nav-link">About</Link>
           </div>
 
-          <Link href="/launch" className="nav-cta">
-            Start Free →
-          </Link>
+          <div className="nav-right">
+            {user ? (
+              <Link href="/dashboard" className="nav-cta">Dashboard →</Link>
+            ) : (
+              <>
+                <Link href="/login" className="nav-link-auth">Log In</Link>
+                <Link href="/signup" className="nav-cta">Start Free →</Link>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -64,6 +72,12 @@ export default function Navbar() {
           text-decoration: none; transition: color 0.2s;
         }
         .nav-link:hover { color: #f1f5f9; }
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .nav-link-auth {
+          font-size: 0.82rem; font-weight: 600; color: #94a3b8;
+          text-decoration: none; transition: color 0.2s;
+        }
+        .nav-link-auth:hover { color: #f1f5f9; }
         .nav-cta {
           padding: 8px 20px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
           background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
@@ -75,6 +89,7 @@ export default function Navbar() {
         @media (max-width: 768px) {
           .nav-links { display: none; }
           .nav-logo span { font-size: 1rem; }
+          .nav-link-auth { display: none; }
         }
       `}</style>
     </>

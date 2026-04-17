@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const ThreeDScene = dynamic(() => import('@/components/ThreeDScene'), { ssr: false });
 
@@ -76,13 +78,18 @@ function TypingTerminal() {
 }
 
 /* ── FAQ Item ── */
-function FaqItem({ q, a }) {
+function FaqItem({ q, a, num }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={`faq-card ${open ? 'open' : ''}`} onClick={() => setOpen(!open)}>
       <div className="faq-header">
-        <h3>{q}</h3>
-        <span className="faq-icon">{open ? '−' : '+'}</span>
+        <div className="faq-left">
+          <span className="faq-num">{String(num).padStart(2, '0')}</span>
+          <h3>{q}</h3>
+        </div>
+        <span className={`faq-chevron ${open ? 'rotated' : ''}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
       </div>
       <div className="faq-body">
         <div className="faq-body-inner"><p>{a}</p></div>
@@ -122,7 +129,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="landing">
+    <>
+    <Navbar />
+    <div className="landing" style={{ paddingTop: 'var(--nav-height, 72px)' }}>
 
       {/* ═══ SECTION 1: 3D HERO ═══ */}
       <section className="hero" ref={heroRef}>
@@ -334,7 +343,7 @@ export default function Home() {
           <h2>Got questions?</h2>
         </div>
         <div className="faq-list">
-          {faqs.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} />)}
+          {faqs.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} num={i + 1} />)}
         </div>
       </section>
 
@@ -598,33 +607,56 @@ export default function Home() {
         .test-author span { font-size: 0.8rem; color: #64748b; }
 
         /* ── 9. FAQ ── */
-        .faq-section { padding: 7rem 1.5rem; max-width: 750px; margin: 0 auto; }
-        .faq-list { display: flex; flex-direction: column; gap: 1rem; }
+        .faq-section { padding: 7rem 1.5rem; max-width: 800px; margin: 0 auto; }
+        .faq-list { display: flex; flex-direction: column; gap: 0.75rem; }
         .faq-card {
           padding: 1.5rem 2rem; border-radius: 16px;
-          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-          cursor: pointer; transition: all 0.3s ease;
+          background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06);
+          cursor: pointer; transition: all 0.35s ease;
+          position: relative;
         }
-        .faq-card:hover { border-color: rgba(255,255,255,0.12); }
-        .faq-card.open { border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.03); }
-        .faq-header { display: flex; justify-content: space-between; align-items: center; }
-        .faq-header h3 { font-size: 1rem; color: #e2e8f0; font-weight: 600; margin: 0; }
-        .faq-icon { font-size: 1.4rem; color: #64748b; font-weight: 300; transition: color 0.3s; }
-        .faq-card.open .faq-icon { color: #60a5fa; }
+        .faq-card::before {
+          content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+          width: 3px; height: 0; border-radius: 0 4px 4px 0;
+          background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+          transition: height 0.35s ease;
+        }
+        .faq-card:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.025); }
+        .faq-card.open {
+          border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.03);
+          box-shadow: 0 8px 30px rgba(59,130,246,0.06);
+        }
+        .faq-card.open::before { height: 60%; }
+        .faq-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .faq-left { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
+        .faq-num {
+          flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.75rem; font-weight: 800; color: #64748b;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+          transition: all 0.3s ease; font-family: var(--font-mono);
+        }
+        .faq-card.open .faq-num {
+          background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+          color: #60a5fa; border-color: rgba(59,130,246,0.25);
+        }
+        .faq-header h3 { font-size: 1rem; color: #e2e8f0; font-weight: 600; margin: 0; line-height: 1.4; }
+        .faq-card.open .faq-header h3 { color: #f8fafc; }
+        .faq-chevron {
+          flex-shrink: 0; color: #475569; transition: transform 0.35s ease, color 0.3s ease;
+          display: flex; align-items: center; justify-content: center;
+          width: 32px; height: 32px; border-radius: 8px;
+          background: rgba(255,255,255,0.03);
+        }
+        .faq-chevron.rotated { transform: rotate(180deg); color: #60a5fa; background: rgba(59,130,246,0.08); }
         .faq-body {
-          display: grid;
-          grid-template-rows: 0fr;
+          display: grid; grid-template-rows: 0fr;
           transition: grid-template-rows 0.4s ease, padding-top 0.4s ease;
           padding-top: 0;
         }
-        .faq-card.open .faq-body {
-          grid-template-rows: 1fr;
-          padding-top: 1rem;
-        }
-        .faq-body-inner {
-          overflow: hidden;
-        }
-        .faq-body p { font-size: 0.9rem; color: #94a3b8; line-height: 1.7; margin: 0; }
+        .faq-card.open .faq-body { grid-template-rows: 1fr; padding-top: 1rem; }
+        .faq-body-inner { overflow: hidden; padding-left: 52px; }
+        .faq-body p { font-size: 0.9rem; color: #94a3b8; line-height: 1.75; margin: 0; }
 
         /* ── 10. FINAL CTA ── */
         .final-cta {
@@ -660,5 +692,7 @@ export default function Home() {
         }
       `}</style>
     </div>
+    <Footer />
+    </>
   );
 }

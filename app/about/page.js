@@ -1,8 +1,11 @@
 'use client';
-import Image from 'next/image';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function AboutPage() {
   return (
+    <>
+    <Navbar />
     <div className="about-page">
       {/* ── HERO ── */}
       <section className="about-hero">
@@ -138,5 +141,7 @@ export default function AboutPage() {
         }
       `}</style>
     </div>
+    <Footer />
+    </>
   );
 }
