@@ -7,6 +7,29 @@ import Footer from '@/components/Footer';
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
 
+  const faqs = [
+    { q: "Can I switch plans later?", a: "Yes, you can upgrade or downgrade your plan at any time. Prorated charges will be applied automatically." },
+    { q: "What happens if I cancel?", a: "You will retain access until the end of your billing cycle. If you exported your code, you own it forever." },
+    { q: "Is there a setup fee?", a: "No, there are zero setup fees or hidden charges. You only pay the listed monthly or annual subscription." },
+    { q: "Do I need a credit card for the free plan?", a: "No credit card is required to start building on the free Starter plan." }
+  ];
+
+  /* ── FAQ Item ── */
+  function FaqItem({ q, a }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <div className={`faq-card ${open ? 'open' : ''}`} onClick={() => setOpen(!open)}>
+        <div className="faq-header">
+          <h3>{q}</h3>
+          <span className="faq-plus">+</span>
+        </div>
+        <div className="faq-body">
+          <div className="faq-body-inner"><p>{a}</p></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
     <Navbar />
@@ -132,26 +155,11 @@ export default function PricingPage() {
 
       {/* ── FAQ ── */}
       <section className="faq-section">
-        <div className="section-header">
-          <h2>Frequently Asked Questions</h2>
+        <div className="section-header" style={{ marginBottom: '4rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Frequently Asked Questions</h2>
         </div>
-        <div className="faq-grid">
-          <div className="faq-item">
-            <h4>Can I switch plans later?</h4>
-            <p>Yes, you can upgrade or downgrade your plan at any time. Prorated charges will be applied automatically.</p>
-          </div>
-          <div className="faq-item">
-            <h4>What happens if I cancel?</h4>
-            <p>You will retain access until the end of your billing cycle. If you exported your code, you own it forever.</p>
-          </div>
-          <div className="faq-item">
-            <h4>Is there a setup fee?</h4>
-            <p>No, there are zero setup fees or hidden charges. You only pay the listed monthly or annual subscription.</p>
-          </div>
-          <div className="faq-item">
-            <h4>Do I need a credit card for the free plan?</h4>
-            <p>No credit card is required to start building on the free Starter plan.</p>
-          </div>
+        <div className="faq-list">
+          {faqs.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} />)}
         </div>
       </section>
 
@@ -202,14 +210,34 @@ export default function PricingPage() {
         .compare-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
         .table-wrapper { overflow-x: auto; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; margin-bottom: 6rem; }
 
-        .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .faq-item h4 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 0.5rem; }
-        .faq-item p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+        /* ── FAQ ── */
+        .faq-section { padding: 5rem 0; max-width: 900px; margin: 0 auto; }
+        .faq-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .faq-card {
+          padding: 1.5rem 2rem; border-radius: 12px;
+          background: #0f111c; border: 1px solid rgba(139,92,246,0.15);
+          cursor: pointer; transition: all 0.3s ease;
+        }
+        .faq-card:hover { border-color: rgba(139,92,246,0.3); background: #131522; }
+        .faq-card.open { border-color: rgba(139,92,246,0.3); }
+        .faq-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .faq-header h3 { font-size: 1.05rem; color: #f8fafc; font-weight: 600; margin: 0; line-height: 1.4; }
+        .faq-plus {
+          flex-shrink: 0; color: #8b5cf6; font-size: 1.6rem; font-weight: 500;
+          font-family: monospace; display: flex; align-items: center; justify-content: center;
+        }
+        .faq-body {
+          display: grid; grid-template-rows: 0fr;
+          transition: grid-template-rows 0.4s ease, padding-top 0.4s ease;
+          padding-top: 0;
+        }
+        .faq-card.open .faq-body { grid-template-rows: 1fr; padding-top: 1rem; }
+        .faq-body-inner { overflow: hidden; padding-right: 2rem; }
+        .faq-body p { font-size: 0.95rem; color: #cbd5e1; line-height: 1.7; margin: 0; }
 
         @media (max-width: 900px) {
           .price-grid { grid-template-columns: 1fr; gap: 2rem; }
           .price-card.featured { transform: scale(1); }
-          .faq-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>

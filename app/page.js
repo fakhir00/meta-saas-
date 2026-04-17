@@ -78,18 +78,13 @@ function TypingTerminal() {
 }
 
 /* ── FAQ Item ── */
-function FaqItem({ q, a, num }) {
+function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={`faq-card ${open ? 'open' : ''}`} onClick={() => setOpen(!open)}>
       <div className="faq-header">
-        <div className="faq-left">
-          <span className="faq-num">{String(num).padStart(2, '0')}</span>
-          <h3>{q}</h3>
-        </div>
-        <span className={`faq-chevron ${open ? 'rotated' : ''}`}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </span>
+        <h3>{q}</h3>
+        <span className="faq-plus">+</span>
       </div>
       <div className="faq-body">
         <div className="faq-body-inner"><p>{a}</p></div>
@@ -336,14 +331,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ SECTION 9: FAQ ═══ */}
+      {/* ═══ SECTION 9: FAQ ── */}
       <section className="faq-section">
-        <div className="section-header">
-          <span className="section-badge">FAQ</span>
-          <h2>Got questions?</h2>
+        <div className="section-header" style={{ marginBottom: '4rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Frequently Asked Questions</h2>
         </div>
         <div className="faq-list">
-          {faqs.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} num={i + 1} />)}
+          {faqs.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} />)}
         </div>
       </section>
 
@@ -607,56 +601,29 @@ export default function Home() {
         .test-author span { font-size: 0.8rem; color: #64748b; }
 
         /* ── 9. FAQ ── */
-        .faq-section { padding: 7rem 1.5rem; max-width: 800px; margin: 0 auto; }
+        .faq-section { padding: 7rem 1.5rem; max-width: 900px; margin: 0 auto; }
         .faq-list { display: flex; flex-direction: column; gap: 0.75rem; }
         .faq-card {
-          padding: 1.5rem 2rem; border-radius: 16px;
-          background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06);
-          cursor: pointer; transition: all 0.35s ease;
-          position: relative;
+          padding: 1.5rem 2rem; border-radius: 12px;
+          background: #0f111c; border: 1px solid rgba(139,92,246,0.15);
+          cursor: pointer; transition: all 0.3s ease;
         }
-        .faq-card::before {
-          content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-          width: 3px; height: 0; border-radius: 0 4px 4px 0;
-          background: linear-gradient(180deg, #3b82f6, #8b5cf6);
-          transition: height 0.35s ease;
-        }
-        .faq-card:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.025); }
-        .faq-card.open {
-          border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.03);
-          box-shadow: 0 8px 30px rgba(59,130,246,0.06);
-        }
-        .faq-card.open::before { height: 60%; }
+        .faq-card:hover { border-color: rgba(139,92,246,0.3); background: #131522; }
+        .faq-card.open { border-color: rgba(139,92,246,0.3); }
         .faq-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-        .faq-left { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
-        .faq-num {
-          flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 0.75rem; font-weight: 800; color: #64748b;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
-          transition: all 0.3s ease; font-family: var(--font-mono);
+        .faq-header h3 { font-size: 1.05rem; color: #f8fafc; font-weight: 600; margin: 0; line-height: 1.4; }
+        .faq-plus {
+          flex-shrink: 0; color: #8b5cf6; font-size: 1.6rem; font-weight: 500;
+          font-family: monospace; display: flex; align-items: center; justify-content: center;
         }
-        .faq-card.open .faq-num {
-          background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
-          color: #60a5fa; border-color: rgba(59,130,246,0.25);
-        }
-        .faq-header h3 { font-size: 1rem; color: #e2e8f0; font-weight: 600; margin: 0; line-height: 1.4; }
-        .faq-card.open .faq-header h3 { color: #f8fafc; }
-        .faq-chevron {
-          flex-shrink: 0; color: #475569; transition: transform 0.35s ease, color 0.3s ease;
-          display: flex; align-items: center; justify-content: center;
-          width: 32px; height: 32px; border-radius: 8px;
-          background: rgba(255,255,255,0.03);
-        }
-        .faq-chevron.rotated { transform: rotate(180deg); color: #60a5fa; background: rgba(59,130,246,0.08); }
         .faq-body {
           display: grid; grid-template-rows: 0fr;
           transition: grid-template-rows 0.4s ease, padding-top 0.4s ease;
           padding-top: 0;
         }
         .faq-card.open .faq-body { grid-template-rows: 1fr; padding-top: 1rem; }
-        .faq-body-inner { overflow: hidden; padding-left: 52px; }
-        .faq-body p { font-size: 0.9rem; color: #94a3b8; line-height: 1.75; margin: 0; }
+        .faq-body-inner { overflow: hidden; padding-right: 2rem; }
+        .faq-body p { font-size: 0.95rem; color: #cbd5e1; line-height: 1.7; margin: 0; }
 
         /* ── 10. FINAL CTA ── */
         .final-cta {

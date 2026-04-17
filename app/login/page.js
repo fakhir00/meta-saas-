@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (user) { router.push('/dashboard'); return null; }
+  useEffect(() => {
+    if (user) router.push('/dashboard');
+  }, [user, router]);
+
+  if (user) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
