@@ -1,9 +1,8 @@
-import { GoogleGenAI } from '@google/genai';
 import { NextResponse } from 'next/server';
 
-const apiKey = 'AQ.Ab8RN6LOuxeSzUOsL8eQGFJ4U2RsLIhRPygyxdXe32KHU-h85Q';
-const ai = new GoogleGenAI({ apiKey: apiKey });
-const METABOX_MODEL = 'gemini-2.5-flash';
+const apiKey = 'fw_5Hj7WSjiX6x1eMJNKPYqFv';
+const FIREWORKS_URL = 'https://api.fireworks.ai/inference/v1/chat/completions';
+const METABOX_MODEL = 'accounts/fireworks/models/llama-v3p1-70b-instruct';
 
 export async function POST(request) {
   try {
@@ -136,15 +135,28 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid phase' }, { status: 400 });
     }
 
-    const response = await ai.models.generateContent({
-      model: METABOX_MODEL,
-      contents: prompt,
-      config: {
+    const response = await fetch(FIREWORKS_URL, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: METABOX_MODEL,
+        messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
-      }
+      })
     });
 
-    let text = response.text;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fireworks API Error:", errorText);
+      throw new Error(`API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    let text = data.choices[0].message.content;
     
     // Clean up markdown wrapping if present
     if (text.startsWith('```json')) {
