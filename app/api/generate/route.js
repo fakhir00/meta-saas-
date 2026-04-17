@@ -137,6 +137,7 @@ export async function POST(request) {
 
     // Using the modern @google/genai SDK
     let text = "";
+    try {
       const result = await genAI.models.generateContent({
         model: 'gemini-1.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
