@@ -84,7 +84,9 @@ function FaqItem({ q, a }) {
         <h3>{q}</h3>
         <span className="faq-icon">{open ? '−' : '+'}</span>
       </div>
-      <div className="faq-body"><p>{a}</p></div>
+      <div className="faq-body">
+        <div className="faq-body-inner"><p>{a}</p></div>
+      </div>
     </div>
   );
 }
@@ -610,10 +612,18 @@ export default function Home() {
         .faq-icon { font-size: 1.4rem; color: #64748b; font-weight: 300; transition: color 0.3s; }
         .faq-card.open .faq-icon { color: #60a5fa; }
         .faq-body {
-          max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.4s ease, padding-top 0.4s ease;
           padding-top: 0;
         }
-        .faq-card.open .faq-body { max-height: 200px; padding-top: 1rem; }
+        .faq-card.open .faq-body {
+          grid-template-rows: 1fr;
+          padding-top: 1rem;
+        }
+        .faq-body-inner {
+          overflow: hidden;
+        }
         .faq-body p { font-size: 0.9rem; color: #94a3b8; line-height: 1.7; margin: 0; }
 
         /* ── 10. FINAL CTA ── */
