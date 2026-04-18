@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import JSZip from 'jszip';
 
@@ -48,12 +48,17 @@ export default function LaunchPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [manualApiKey, setManualApiKey] = useState('');
   
   const [savedBlueprint, setSavedBlueprint] = useState(null);
   const [generatedCode, setGeneratedCode] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const contentRef = useRef(null);
+  const PUBLIC_API_KEY_FALLBACK =
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    '';
 
   const questions = [
     { q: 'Target Industry or Sector Context', placeholder: 'e.g., Healthcare, E-commerce, Real Estate...', icon: '1️⃣' },
@@ -62,6 +67,21 @@ export default function LaunchPage() {
     { q: 'Infrastructure Operating Budget', placeholder: 'e.g., $50, $500...', icon: '4️⃣' },
     { q: 'Calculated Ideal Customer Profile', placeholder: 'e.g., Small business owners needing automation...', icon: '5️⃣' },
   ];
+
+  useEffect(() => {
+    const stored = localStorage.getItem('metabox_gemini_api_key');
+    if (stored) setManualApiKey(stored);
+  }, []);
+
+  const persistManualApiKey = (value) => {
+    setManualApiKey(value);
+    const trimmed = value.trim();
+    if (trimmed) {
+      localStorage.setItem('metabox_gemini_api_key', trimmed);
+      return;
+    }
+    localStorage.removeItem('metabox_gemini_api_key');
+  };
 
   const handleAnswer = (index, value) => {
     const newAnswers = [...answers];
@@ -81,7 +101,8 @@ export default function LaunchPage() {
         body: JSON.stringify({
           phase: targetPhase,
           answers,
-          blueprint: savedBlueprint
+          blueprint: savedBlueprint,
+          apiKeyOverride: manualApiKey || PUBLIC_API_KEY_FALLBACK
         })
       });
 
@@ -168,6 +189,10 @@ export default function LaunchPage() {
     }
   };
 
+  const shouldShowApiKeyInput =
+    typeof apiError === 'string' &&
+    (apiError.includes('Missing Gemini API key') || apiError.includes('Unauthorized API Key'));
+
   return (
     <div className="launch-page">
       <div className="ambient-background">
@@ -197,6 +222,21 @@ export default function LaunchPage() {
                 Processing Fault
              </h3>
              <p style={{ margin: '15px 0', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{apiError}</p>
+             {shouldShowApiKeyInput && (
+               <div style={{ marginTop: '12px', marginBottom: '10px' }}>
+                 <input
+                   type="password"
+                   className="input-field"
+                   style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                   placeholder="Paste Gemini key to retry immediately"
+                   value={manualApiKey}
+                   onChange={(e) => persistManualApiKey(e.target.value)}
+                 />
+                 <p style={{ marginTop: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                   Saved locally on this browser for this app only.
+                 </p>
+               </div>
+             )}
              <button className="btn btn-secondary" style={{ marginTop: '10px', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444' }} onClick={() => callPhase(Object.values({1:'intake',2:'blueprint',3:'aiLogic',4:'sales',5:'code'})[phase - 1])}>
                Refresh Data Stream ⟳
              </button>
