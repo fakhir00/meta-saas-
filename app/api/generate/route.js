@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
 
 const apiKey = 'AQ.Ab8RN6K6JjQWKHCSN10y1lqfmdRTqVtPe2wcvq-srLz2Q8j_CQ';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+const genAI = new GoogleGenAI({ apiKey });
 
 export async function POST(request) {
   try {
@@ -134,23 +135,24 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid phase' }, { status: 400 });
     }
 
-    const response = await fetch(GEMINI_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7 }
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API Error:", errorText);
-      throw new Error(`API returned status ${response.status}`);
+    // Using the modern @google/genai SDK
+    let text = "";
+    try {
+      const result = await genAI.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+        }
+      });
+      text = result.candidates[0].content.parts[0].text;
+    } catch (apiError) {
+      console.error("Gemini SDK Error:", apiError);
+      let message = "AI Generation Fault";
+      if (apiError.message?.includes("401")) message = "Unauthorized API Key (401). Please check your Gemini key.";
+      if (apiError.message?.includes("429")) message = "Rate Limit Exceeded (429). Please wait a moment.";
+      throw new Error(message);
     }
-
-    const data = await response.json();
-    let text = data.candidates[0].content.parts[0].text;
     
     // Clean up markdown wrapping if present
     if (text.startsWith('```json')) {
