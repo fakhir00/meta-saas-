@@ -162,26 +162,39 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid phase' }, { status: 400 });
     }
 
-    // Using the modern @google/genai SDK
+    // Using the modern @google/genai SDK v1.x with retry logic
     let text = "";
-    try {
-      const result = await genAI.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
+    const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    let lastError = null;
+    for (const model of models) {
+      try {
+        const result = await genAI.models.generateContent({
+          model,
+          contents: prompt,
+          config: { temperature: 0.7 }
+        });
+        text = result.text;
+        lastError = null;
+        break;
+      } catch (apiError) {
+        console.error(`Gemini SDK Error (${model}):`, apiError?.message || apiError);
+        const msg = apiError?.message || '';
+        if (msg.includes("401") || apiError?.status === 401) {
+          throw new Error("Unauthorized API Key (401). Please update your GEMINI_API_KEY.");
         }
-      });
-      text = result.text;
-    } catch (apiError) {
-      console.error("Gemini SDK Error:", apiError);
-      let message = "AI Generation Fault";
-      if (apiError.message?.includes("401") || apiError.status === 401 || apiError.code === 401) {
-        message = "Unauthorized API Key (401). Please update your GEMINI_API_KEY/GOOGLE_API_KEY.";
+        if (msg.includes("403")) {
+          throw new Error("API Key forbidden (403). Check key restrictions or billing.");
+        }
+        if (msg.includes("429")) {
+          // Rate limited — wait 3s and try next model
+          await new Promise(r => setTimeout(r, 3000));
+          lastError = new Error("Rate Limit Exceeded. The AI engine is busy — please retry in a moment.");
+          continue;
+        }
+        lastError = new Error(apiError?.message || "AI Generation Fault");
       }
-      if (apiError.message?.includes("429")) message = "Rate Limit Exceeded (429). Please wait a moment.";
-      throw new Error(message);
     }
+    if (lastError) throw lastError;
     
     // Clean up markdown wrapping if present
     if (text.startsWith('```json')) {
