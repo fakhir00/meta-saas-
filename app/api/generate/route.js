@@ -1,20 +1,40 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
-function resolveGeminiApiKey() {
-  return process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim() || '';
+function normalizeApiKey(value) {
+  if (!value) return '';
+  return value.trim().replace(/^['"]|['"]$/g, '');
+}
+
+function resolveGeminiApiKey(overrideKey = '') {
+  const candidates = [
+    overrideKey,
+    process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_API_KEY,
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+    process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
+  ];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeApiKey(candidate);
+    if (normalized) return normalized;
+  }
+  return '';
 }
 
 export async function POST(request) {
   try {
-    const apiKey = resolveGeminiApiKey();
+    const body = await request.json();
+    const { phase, answers, blueprint, apiKeyOverride } = body;
+
+    const headerApiKey = request.headers.get('x-gemini-api-key') || '';
+    const apiKey = resolveGeminiApiKey(apiKeyOverride || headerApiKey);
     if (!apiKey) {
       throw new Error('Missing Gemini API key. Set GEMINI_API_KEY (or GOOGLE_API_KEY) in your environment.');
     }
 
     const genAI = new GoogleGenAI({ apiKey });
-    const body = await request.json();
-    const { phase, answers, blueprint } = body;
 
     const baseContext = `
       You are an elite Senior AI Systems Architect & Venture Builder (MetaBox platform).
