@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
-const apiKey = process.env.GEMINI_API_KEY || 'AQ.Ab8RN6K6JjQWKHCSN10y1lqfmdRTqVtPe2wcvq-srLz2Q8j_CQ';
-const genAI = new GoogleGenAI({ apiKey });
+function resolveGeminiApiKey() {
+  return process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim() || '';
+}
 
 export async function POST(request) {
   try {
+    const apiKey = resolveGeminiApiKey();
+    if (!apiKey) {
+      throw new Error('Missing Gemini API key. Set GEMINI_API_KEY (or GOOGLE_API_KEY) in your environment.');
+    }
+
+    const genAI = new GoogleGenAI({ apiKey });
     const body = await request.json();
     const { phase, answers, blueprint } = body;
 
@@ -149,7 +156,9 @@ export async function POST(request) {
     } catch (apiError) {
       console.error("Gemini SDK Error:", apiError);
       let message = "AI Generation Fault";
-      if (apiError.message?.includes("401")) message = "Unauthorized API Key (401). Please check your Gemini key.";
+      if (apiError.message?.includes("401") || apiError.status === 401 || apiError.code === 401) {
+        message = "Unauthorized API Key (401). Please update your GEMINI_API_KEY/GOOGLE_API_KEY.";
+      }
       if (apiError.message?.includes("429")) message = "Rate Limit Exceeded (429). Please wait a moment.";
       throw new Error(message);
     }
