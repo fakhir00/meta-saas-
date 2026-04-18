@@ -137,7 +137,6 @@ export async function POST(request) {
 
     // Using the modern @google/genai SDK
     let text = "";
-    try {
       const result = await genAI.models.generateContent({
         model: 'gemini-1.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -145,7 +144,7 @@ export async function POST(request) {
           temperature: 0.7,
         }
       });
-      text = result.candidates[0].content.parts[0].text;
+      text = result.text;
     } catch (apiError) {
       console.error("Gemini SDK Error:", apiError);
       let message = "AI Generation Fault";
