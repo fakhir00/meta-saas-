@@ -186,9 +186,14 @@ export async function POST(request) {
           throw new Error("API Key forbidden (403). Check key restrictions or billing.");
         }
         if (msg.includes("429")) {
-          // Rate limited — wait 3s and try next model
+          // Check if it's the daily limit
+          if (msg.includes("PerDay")) {
+            lastError = new Error("Daily API Quota Exhausted (429). You have hit the Google AI free tier daily limit. Please enable billing or wait 24h.");
+            break; // No point retrying other models if daily quota is exhausted
+          }
+          // Minute limit - wait 3s and try next model
           await new Promise(r => setTimeout(r, 3000));
-          lastError = new Error("Rate Limit Exceeded. The AI engine is busy — please retry in a moment.");
+          lastError = new Error("Rate Limit Exceeded (429). The AI engine is busy — please retry in a minute.");
           continue;
         }
         lastError = new Error(apiError?.message || "AI Generation Fault");
