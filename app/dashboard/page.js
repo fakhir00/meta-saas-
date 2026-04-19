@@ -311,23 +311,36 @@ function AIChat({ userName }) {
   const [typing, setTyping] = useState(false);
   const endRef = useRef(null);
 
-  const responses = [
-    'Based on current market trends, I\'d recommend focusing on a B2B vertical SaaS. The pain points are clearer and customers are willing to pay more.',
-    'Great question! For your MVP, I suggest starting with just 3 core features. Anything more and you risk delaying launch without meaningful learnings.',
-    'I analyzed your project structure. Consider adding a webhook integration — it\'s a high-value feature that enterprise customers consistently request.',
-    'Your pricing looks competitive. One suggestion: add a usage-based component to the Studio tier. It aligns incentives and grows with your customers.',
-    'For outreach, the most effective channel right now is LinkedIn DMs + cold email combos. I can draft templates if you\'d like.',
-  ];
-
-  const send = () => {
-    if (!input.trim()) return;
-    setMessages(prev => [...prev, { role: 'user', text: input }]);
+  const send = async () => {
+    if (!input.trim() || typing) return;
+    
+    const userMsg = { role: 'user', text: input.trim() };
+    const conversation = [...messages, userMsg];
+    
+    setMessages(conversation);
     setInput('');
     setTyping(true);
-    setTimeout(() => {
-      setMessages(prev => [...prev, { role: 'ai', text: responses[Math.floor(Math.random() * responses.length)] }]);
+    
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Network error fetching chat response.");
+      }
+      
+      setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
+    } catch (err) {
+      console.error(err);
+      setMessages(prev => [...prev, { role: 'ai', text: `Error: ${err.message}` }]);
+    } finally {
       setTyping(false);
-    }, 1200 + Math.random() * 1000);
+    }
   };
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -338,7 +351,7 @@ function AIChat({ userName }) {
         {messages.map((m, i) => (
           <div key={i} className={`chat-row ${m.role}`}>
             <div className="chat-ava">{m.role === 'ai' ? '🤖' : '👤'}</div>
-            <div className="chat-bubble">{m.text}</div>
+            <div className="chat-bubble" style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
           </div>
         ))}
         {typing && (
@@ -354,10 +367,10 @@ function AIChat({ userName }) {
           type="text" placeholder="Ask your AI co-founder..." value={input}
           onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
         />
-        <button onClick={send}>Send</button>
+        <button onClick={send} disabled={typing} style={{ opacity: typing ? 0.6 : 1, cursor: typing ? 'not-allowed' : 'pointer' }}>
+          {typing ? 'Thinking...' : 'Send'}
+        </button>
       </div>
-
-      
     </div>
   );
 }
