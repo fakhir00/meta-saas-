@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 
 function normalizeApiKey(value) {
   if (!value) return '';
   return value.trim().replace(/^['"]|['"]$/g, '');
 }
 
-function resolveGeminiApiKey(overrideKey = '') {
+function resolveGroqApiKey(overrideKey = '') {
   const candidates = [
     overrideKey,
-    process.env.GEMINI_API_KEY,
-    process.env.GOOGLE_API_KEY,
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY,
-    process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
+    process.env.GROQ_API_KEY,
+    process.env.NEXT_PUBLIC_GROQ_API_KEY,
   ];
 
   for (const candidate of candidates) {
@@ -28,13 +25,13 @@ export async function POST(request) {
     const body = await request.json();
     const { phase, answers, blueprint, apiKeyOverride } = body;
 
-    const headerApiKey = request.headers.get('x-gemini-api-key') || '';
-    const apiKey = resolveGeminiApiKey(apiKeyOverride || headerApiKey);
+    const headerApiKey = request.headers.get('x-groq-api-key') || '';
+    const apiKey = resolveGroqApiKey(apiKeyOverride || headerApiKey);
     if (!apiKey) {
-      throw new Error('Missing Gemini API key. Set GEMINI_API_KEY (or GOOGLE_API_KEY) in your environment.');
+      throw new Error('Missing Groq API key. Set GROQ_API_KEY in your environment.');
     }
 
-    const genAI = new GoogleGenAI({ apiKey });
+    const groq = new Groq({ apiKey });
 
     const baseContext = `
       You are an elite Senior AI Systems Architect & Venture Builder (MetaBox platform).
@@ -162,44 +159,37 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid phase' }, { status: 400 });
     }
 
-    // Using the modern @google/genai SDK v1.x with retry logic
     let text = "";
-    const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
-    let lastError = null;
-    for (const model of models) {
-      try {
-        const result = await genAI.models.generateContent({
-          model,
-          contents: prompt,
-          config: { temperature: 0.7 }
-        });
-        text = result.text;
-        lastError = null;
-        break;
-      } catch (apiError) {
-        console.error(`Gemini SDK Error (${model}):`, apiError?.message || apiError);
-        const msg = apiError?.message || '';
-        if (msg.includes("401") || apiError?.status === 401) {
-          throw new Error("Unauthorized API Key (401). Please update your GEMINI_API_KEY.");
-        }
-        if (msg.includes("403")) {
-          throw new Error("API Key forbidden (403). Check key restrictions or billing.");
-        }
-        if (msg.includes("429")) {
-          // Check if it's the daily limit
-          if (msg.includes("PerDay")) {
-            lastError = new Error("Daily API Quota Exhausted (429). You have hit the Google AI free tier daily limit. Please enable billing or wait 24h.");
-            break; // No point retrying other models if daily quota is exhausted
+    try {
+      const completion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: "You are a specialized JSON and text structure generator. You only return valid JSON. Do not return conversational text."
+          },
+          {
+            role: "user",
+            content: prompt
           }
-          // Minute limit - wait 3s and try next model
-          await new Promise(r => setTimeout(r, 3000));
-          lastError = new Error("Rate Limit Exceeded (429). The AI engine is busy — please retry in a minute.");
-          continue;
-        }
-        lastError = new Error(apiError?.message || "AI Generation Fault");
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+      });
+      
+      text = completion.choices[0]?.message?.content || "";
+    } catch (apiError) {
+      console.error(`Groq API Error:`, apiError?.message || apiError);
+      const msg = apiError?.message || '';
+      
+      if (msg.includes("401") || apiError?.status === 401) {
+        throw new Error("Unauthorized API Key (401). Please update your GROQ_API_KEY.");
       }
+      if (msg.includes("429") || apiError?.status === 429) {
+        throw new Error("Rate Limit Exceeded (429). The Groq API is busy or ratelimited — please retry.");
+      }
+      throw new Error(apiError?.message || "AI Generation Fault");
     }
-    if (lastError) throw lastError;
     
     // Clean up markdown wrapping if present
     if (text.startsWith('```json')) {
@@ -213,15 +203,15 @@ export async function POST(request) {
     try {
       parsed = JSON.parse(text);
     } catch (e) {
-      console.error("Failed to parse JSON response. The model may have returned malformed data.");
+      console.error("Failed to parse JSON response.", text);
       // Fallback: If parse fails on an array (phase === code), return a dummy file package
       if (phase === 'code') {
          return NextResponse.json([
-           { filename: "error.log", content: "The AI engine returned malformed JSON during generation. Try restructuring your prompt or try again." },
-           { filename: "README.md", content: "# Code Generation Error\nThe engine timed out or the logic overflowed." }
+           { filename: "error.log", content: "The AI engine returned malformed JSON during generation from Groq. Check server console limits." },
+           { filename: "README.md", content: "# Code Generation Error\nThe engine failed to format properly." }
          ]);
       }
-      return NextResponse.json({ error: "Proprietary AI engine returned an invalid format. Please try again." }, { status: 500 });
+      return NextResponse.json({ error: "The AI engine returned an invalid JSON format. Please try again." }, { status: 500 });
     }
 
     return NextResponse.json(parsed);

@@ -56,8 +56,7 @@ export default function LaunchPage() {
 
   const contentRef = useRef(null);
   const PUBLIC_API_KEY_FALLBACK =
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_GROQ_API_KEY ||
     '';
 
   const questions = [
@@ -69,7 +68,7 @@ export default function LaunchPage() {
   ];
 
   useEffect(() => {
-    const stored = localStorage.getItem('metabox_gemini_api_key');
+    const stored = localStorage.getItem('metabox_groq_api_key');
     if (stored) setManualApiKey(stored);
   }, []);
 
@@ -77,10 +76,10 @@ export default function LaunchPage() {
     setManualApiKey(value);
     const trimmed = value.trim();
     if (trimmed) {
-      localStorage.setItem('metabox_gemini_api_key', trimmed);
+      localStorage.setItem('metabox_groq_api_key', trimmed);
       return;
     }
-    localStorage.removeItem('metabox_gemini_api_key');
+    localStorage.removeItem('metabox_groq_api_key');
   };
 
   const handleAnswer = (index, value) => {
@@ -191,7 +190,7 @@ export default function LaunchPage() {
 
   const shouldShowApiKeyInput =
     typeof apiError === 'string' &&
-    (apiError.includes('Missing Gemini API key') || apiError.includes('Unauthorized API Key'));
+    (apiError.includes('Missing Groq API key') || apiError.includes('Unauthorized API Key'));
 
   return (
     <div className="launch-page">
@@ -228,7 +227,7 @@ export default function LaunchPage() {
                    type="password"
                    className="input-field"
                    style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(239, 68, 68, 0.3)' }}
-                   placeholder="Paste Gemini key to retry immediately"
+                   placeholder="Paste Groq key to retry immediately"
                    value={manualApiKey}
                    onChange={(e) => persistManualApiKey(e.target.value)}
                  />
