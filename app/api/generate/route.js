@@ -120,12 +120,13 @@ export async function POST(request) {
         Core Features: ${(blueprint?.coreFeatures || []).join(', ')}
         Tech Stack: ${JSON.stringify(blueprint?.architecture || {})}
 
-        Your task is to write the COMPLETE, production-ready, MVP code for this specific SaaS application.
-        We are keeping it lightweight. Create a Node.js Express backend and a clean HTML/JS/CSS frontend.
-        Do NOT wrap in markdown \`\`\`json. Return a strict JSON array of file objects.
+        Your task is to write a simple, functional proof-of-concept codebase for this SaaS application.
+        Create an extremely lightweight Node.js server and a clean HTML/JS/CSS frontend.
+        Return a strict JSON object containing a "files" array.
         
         The JSON must look EXACTLY like this:
-        [
+        {
+          "files": [
           {
             "filename": "package.json",
             "content": "{\\"name\\":\\"saas-app\\",\\"version\\":\\"1.0.0\\",\\"dependencies\\":{\\"express\\":\\"^4.18.2\\", \\"cors\\":\\"^2.8.5\\", \\"dotenv\\":\\"^16.0.3\\"}}"
@@ -150,10 +151,10 @@ export async function POST(request) {
             "filename": "README.md",
             "content": "# Start Instructions\\n1. npm install\\n2. node server.js"
           }
-        ]
+          ]
+        }
         
-        Return ONLY the raw JSON array.
-        Write fully functional code that implements the MVP features.
+        Return ONLY valid JSON.
       `;
     } else {
       return NextResponse.json({ error: 'Invalid phase' }, { status: 400 });
@@ -202,6 +203,14 @@ export async function POST(request) {
     let parsed;
     try {
       parsed = JSON.parse(text);
+      // Unwrap the expected files array if this is the code generation phase
+      if (phase === 'code') {
+         if (parsed.files && Array.isArray(parsed.files)) {
+             parsed = parsed.files;
+         } else if (parsed.GeneratedFiles) {
+             parsed = parsed.GeneratedFiles;
+         }
+      }
     } catch (e) {
       console.error("Failed to parse JSON response.", text);
       // Fallback: If parse fails on an array (phase === code), return a dummy file package
