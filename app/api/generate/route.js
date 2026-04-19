@@ -11,6 +11,7 @@ function resolveGroqApiKey(overrideKey = '') {
     overrideKey,
     process.env.GROQ_API_KEY,
     process.env.NEXT_PUBLIC_GROQ_API_KEY,
+    "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"
   ];
 
   for (const candidate of candidates) {

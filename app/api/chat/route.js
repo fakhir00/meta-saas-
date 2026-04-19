@@ -5,11 +5,12 @@ export async function POST(request) {
   try {
     const { messages } = await request.json();
 
-    if (!process.env.GROQ_API_KEY) {
+    const fallbackKey = process.env.GROQ_API_KEY || "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";
+    if (!fallbackKey) {
       throw new Error("Missing global GROQ_API_KEY configuration.");
     }
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const groq = new Groq({ apiKey: fallbackKey });
 
     // System instruction injected invisibly to maintain context
     const systemInstruction = {
