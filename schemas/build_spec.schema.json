@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "product_title",
+    "feature_tree",
+    "entity_model",
+    "api_surface",
+    "tech_stack",
+    "auth_config",
+    "deployment_config"
+  ],
+  "properties": {
+    "product_title": { "type": "string" },
+    "feature_tree": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "entity_model": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_name"],
+        "properties": {
+          "entity_name": { "type": "string" }
+        }
+      }
+    },
+    "api_surface": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "method", "path"],
+        "properties": {
+          "name": { "type": "string" },
+          "method": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "tech_stack": {
+      "type": "object",
+      "properties": {
+        "frontend": { "type": "string" },
+        "backend": { "type": "string" },
+        "database": { "type": "string" }
+      }
+    },
+    "auth_config": { "type": "object" },
+    "database_config": { "type": "object" },
+    "ui_expectations": { "type": "object" },
+    "deployment_config": { "type": "object" }
+  }
+}

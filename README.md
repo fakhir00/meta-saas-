@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SaaS Builder
 
-## Getting Started
+SaaS Builder is a local CLI that takes a one-sentence business idea and produces six implementation-ready specification files. It generates specs only; it does not generate or run application code.
 
-First, run the development server:
+## Quickstart
+
+1. Clone and install dependencies:
+   ```bash
+   git clone <your-repo-url>
+   cd saas-builder
+   pip install -r requirements.txt
+   ```
+2. Create `.env` and set your provider key:
+   ```bash
+   copy .env.example .env
+   ```
+   Then either:
+   - set `GEMINI_API_KEY` and keep `FALLBACK_MODEL=gemini`, or
+   - set `OPENROUTER_API_KEY` and change `FALLBACK_MODEL=openrouter`.
+3. Run the pipeline:
+   ```bash
+   python orchestrator.py --idea "An AI assistant for dental clinics to manage patient follow-ups"
+   ```
+4. Find outputs in `state/`.
+
+## Output Files
+
+After a successful run, `state/` will contain:
+
+- `idea.txt`
+- `req_doc.json`
+- `build_spec.json`
+- `features.json`
+- `api_spec.json`
+- `schema.sql`
+- `ui_spec.json`
+- `pipeline_status.json`
+
+## Example
+
+Example idea:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+python orchestrator.py --idea "A SaaS platform for independent fitness coaches to manage programs, client check-ins, and subscription plans"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Expected output file list:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `state/req_doc.json`
+- `state/build_spec.json`
+- `state/features.json`
+- `state/api_spec.json`
+- `state/schema.sql`
+- `state/ui_spec.json`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Useful Flags
 
-## Learn More
+- Fresh run: `python orchestrator.py --idea "your idea here"`
+- Resume failed run: `python orchestrator.py --resume`
+- Dry run plan: `python orchestrator.py --dry-run --idea "your idea here"`
+- Clean state: `python orchestrator.py --clean`
 
-To learn more about Next.js, take a look at the following resources:
+## OpenRouter Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+When using OpenRouter, the pipeline keeps the same internal model split and maps them to:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `gemini-2.5-flash` -> `google/gemini-2.5-flash`
+- `gemini-2.5-flash-lite` -> `google/gemini-2.5-flash-lite`
 
-## Deploy on Vercel
+You can override those defaults with:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `OPENROUTER_MODEL`
+- `OPENROUTER_MODEL_FLASH`
+- `OPENROUTER_MODEL_FLASH_LITE`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If your OpenRouter account has a lower token budget, you can cap output tokens with:
+
+- `OPENROUTER_MAX_TOKENS_CAP=4000`
