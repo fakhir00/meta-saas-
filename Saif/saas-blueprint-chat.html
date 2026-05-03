@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MetaBox — SaaS Blueprint Mentor</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f6f3;
+  --surface:#ffffff;
+  --surface2:#f2f1ee;
+  --border:#e4e2db;
+  --border2:#d0cdc5;
+  --accent:#5a4fcf;
+  --accent-lt:#ebe9fb;
+  --accent-mid:#8b80e8;
+  --accent2:#e8a838;
+  --accent2-lt:#fdf3e0;
+  --green:#2d9e6b;
+  --green-lt:#e4f5ee;
+  --text:#1a1916;
+  --text2:#5c5952;
+  --text3:#9b9890;
+  --user-bg:#5a4fcf;
+  --user-text:#ffffff;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.07),0 2px 8px rgba(0,0,0,0.05);
+  --r:16px;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --serif:'Instrument Serif',serif;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:radial-gradient(circle,#c8c5bc 1px,transparent 1px);
+  background-size:28px 28px;opacity:0.3;pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;width:100%;max-width:720px;height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{
+  padding:13px 18px 11px;
+  background:rgba(247,246,243,0.94);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.logo-icon{
+  width:34px;height:34px;border-radius:9px;background:var(--accent);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.logo-icon svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logo-name{font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+.logo-badge{font-size:0.58rem;font-weight:700;letter-spacing:0.06em;background:var(--accent-lt);color:var(--accent);padding:2px 7px;border-radius:20px;text-transform:uppercase}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.step-pills{display:flex;gap:4px;align-items:center}
+.pill{height:5px;border-radius:3px;background:var(--border);transition:all 0.35s ease}
+.pill.w1{width:28px}.pill.w2{width:22px}.pill.w3{width:22px}.pill.w4{width:22px}
+.pill.active{background:var(--accent)}.pill.done{background:var(--green)}
+.step-label{font-size:0.72rem;color:var(--text3);font-weight:500}
+
+/* PROGRESS */
+.prog-wrap{height:2px;background:var(--border);flex-shrink:0}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-mid));transition:width 0.6s ease;width:3%}
+
+/* CHAT */
+#chat-area{flex:1;overflow-y:auto;padding:18px 14px 6px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+#chat-area::-webkit-scrollbar{width:3px}
+#chat-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* SPLASH */
+#splash{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:28px 12px 10px;gap:11px;animation:up 0.5s ease both;
+}
+.splash-orb{
+  width:68px;height:68px;border-radius:20px;background:var(--accent);
+  display:grid;place-items:center;margin-bottom:2px;
+  box-shadow:0 8px 30px rgba(90,79,207,0.3);
+}
+.splash-orb svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.splash-h{font-family:var(--serif);font-size:1.75rem;line-height:1.2;color:var(--text)}
+.splash-h em{color:var(--accent);font-style:italic}
+.splash-p{font-size:0.875rem;color:var(--text2);line-height:1.6;max-width:360px}
+.splash-trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:420px;margin-top:2px}
+.trio-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:12px 8px;font-size:0.78rem;color:var(--text2);
+  display:flex;flex-direction:column;align-items:center;gap:5px;line-height:1.4;
+}
+.trio-icon{font-size:18px;line-height:1}
+.trio-card strong{color:var(--text);font-size:0.8rem}
+
+/* MESSAGES */
+.msg{display:flex;gap:8px;animation:up 0.28s cubic-bezier(.22,1,.36,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse}
+.av{width:29px;height:29px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:12px;margin-top:2px;font-weight:700}
+.av.ai{background:var(--accent);color:#fff;letter-spacing:0}
+.av.user{background:var(--surface2);border:1px solid var(--border2);font-size:13px}
+.bubble{max-width:80%;padding:10px 14px;font-size:0.88rem;line-height:1.68;border-radius:var(--r)}
+.msg.ai .bubble{background:var(--surface);border:1px solid var(--border);border-radius:4px var(--r) var(--r) var(--r);color:var(--text);box-shadow:var(--shadow-sm)}
+.msg.user .bubble{background:var(--user-bg);color:var(--user-text);border-radius:var(--r) 4px var(--r) var(--r)}
+.typing-inner{padding:11px 14px}
+.dots{display:flex;gap:5px;align-items:center}
+.dots span{width:6px;height:6px;border-radius:50%;background:var(--accent-mid);animation:pulse 1.4s ease infinite}
+.dots span:nth-child(2){animation-delay:.18s}.dots span:nth-child(3){animation-delay:.36s}
+@keyframes pulse{0%,80%,100%{opacity:.2;transform:scale(.75)}40%{opacity:1;transform:scale(1)}}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:2px 0 2px 36px;animation:up 0.35s ease both 0.12s}
+.chip{
+  font-size:0.82rem;font-weight:600;font-family:var(--font);
+  padding:7px 14px;border-radius:20px;cursor:pointer;
+  background:var(--surface);color:var(--accent);
+  border:1.5px solid #ccc8f5;
+  transition:all 0.15s;white-space:nowrap;box-shadow:var(--shadow-sm);
+}
+.chip:hover{background:var(--accent-lt);border-color:var(--accent);transform:translateY(-1px)}
+.chip:active{transform:scale(0.96)}
+
+/* Q-TRACKER */
+.q-tracker{
+  display:flex;align-items:center;gap:8px;
+  background:var(--accent-lt);border-radius:10px;
+  padding:8px 13px;font-size:0.77rem;color:var(--accent);font-weight:600;
+  margin-left:36px;animation:up 0.3s ease both;
+}
+.q-dots{display:flex;gap:3px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:rgba(90,79,207,0.18);transition:all 0.3s}
+.q-dot.done{background:var(--accent)}.q-dot.cur{background:var(--accent-mid);transform:scale(1.2)}
+
+/* THINKING */
+.thinking{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:15px 18px;margin-left:36px;box-shadow:var(--shadow-sm);animation:up 0.3s ease both;
+}
+.spinner{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--accent-lt);border-top-color:var(--accent);animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.thinking-txt{font-size:0.855rem;color:var(--text2)}
+.thinking-txt strong{color:var(--text)}
+.thinking-sub{font-size:0.78rem;color:var(--text3);margin-top:2px}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:10px;font-size:0.68rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--text3);padding:6px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* BLUEPRINT */
+.bp-grid{display:flex;flex-direction:column;gap:9px;padding-left:36px}
+.bp-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px 17px;box-shadow:var(--shadow-sm);animation:up 0.4s ease both}
+.bp-card.hero{background:linear-gradient(135deg,#f3f1ff 0%,#eae7ff 100%);border-color:#c5c0f0}
+.bp-lbl{font-size:0.61rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.bp-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
+.bp-title{font-family:var(--serif);font-size:1.12rem;color:var(--text);line-height:1.3;margin-bottom:3px}
+.bp-body{font-size:0.845rem;color:var(--text2);line-height:1.65}
+.bp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.bp-tag{font-size:0.77rem;padding:5px 12px;border-radius:20px;font-weight:600;background:var(--accent-lt);color:var(--accent);border:1px solid #d2cefc}
+.bp-tag:nth-child(2n){background:var(--accent2-lt);color:#8a5f00;border-color:#f0d898}
+
+/* INPUT */
+#input-area{
+  padding:10px 14px 15px;
+  background:rgba(247,246,243,0.96);backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);flex-shrink:0;
+}
+.input-wrap{
+  display:flex;align-items:flex-end;gap:8px;
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:14px;padding:8px 8px 8px 14px;
+  transition:border-color .2s,box-shadow .2s;box-shadow:var(--shadow-sm);
+}
+.input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(90,79,207,0.1)}
+#inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:0.875rem;resize:none;max-height:108px;line-height:1.55;padding-top:2px}
+#inp::placeholder{color:var(--text3)}
+#sbtn{width:35px;height:35px;border-radius:9px;background:var(--accent);border:none;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:background .2s,transform .15s,opacity .2s}
+#sbtn:hover{background:#4a3fbf;transform:scale(1.05)}
+#sbtn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+#sbtn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.inp-hint{font-size:0.68rem;color:var(--text3);text-align:center;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+    </div>
+    <span class="logo-name">MetaBox</span>
+    <span class="logo-badge">AI Co-Founder</span>
+    <div class="header-right">
+      <span class="step-label" id="step-lbl">Step 1 of 4</span>
+      <div class="step-pills">
+        <div class="pill w1 active" id="p1"></div>
+        <div class="pill w2" id="p2"></div>
+        <div class="pill w3" id="p3"></div>
+        <div class="pill w4" id="p4"></div>
+      </div>
+    </div>
+  </header>
+  <div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
+  <div id="chat-area"></div>
+  <div id="input-area">
+    <div class="input-wrap">
+      <textarea id="inp" rows="1" placeholder="Type your answer here…"></textarea>
+      <button id="sbtn">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="inp-hint" id="hint">Press Enter to send &nbsp;·&nbsp; Shift+Enter for new line</div>
+  </div>
+</div>
+<script>
+const API="https://api.groq.com/openai/v1/chat/completions",MODEL="llama-3.3-70b-versatile",GROQ_KEY="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";
+const Qs=[
+  {q:"What is your education background?",chips:["High school","Bachelor's degree","Master's / PhD","Self-taught / Bootcamp"]},
+  {q:"Which field excites you the most?",chips:["Tech & Software","Health & Wellness","Education & Learning","Finance & Money","E-commerce & Retail","Creative & Media"]},
+  {q:"What is your programming experience level?",chips:["None at all","Beginner (some basics)","Intermediate","Advanced / Professional"]},
+  {q:"What tools or software do you regularly use?",chips:["Microsoft Office","Figma / Design tools","Python or coding","No-code tools (Webflow, Bubble)","None yet"]},
+  {q:"Have you ever worked on a project or business before?",chips:["Yes — it succeeded","Yes — it didn't work out","Currently working on one","No, this is my first time"]},
+  {q:"Which industries do you understand well from experience?",chips:["Healthcare","Retail / E-commerce","Education","Finance / Banking","Real estate","Other"]},
+  {q:"What type of work do you enjoy most?",chips:["Technical / Building things","Creative / Design","Business & Sales","Research & Analysis","A mix of everything"]},
+  {q:"How much time can you dedicate to this per day?",chips:["Under 1 hour","1–2 hours","3–4 hours","Full-time (8h+)"]},
+  {q:"What is your main goal with this SaaS idea?",chips:["Earn passive income","Build a real startup","Learn and grow","Help others / make impact"]},
+  {q:"What problems do you notice around you that frustrate people or go unsolved?",chips:null},
+];
+
+const state={phase:"start",qi:0,answers:{},idea:null,locked:false};
+const chat=document.getElementById("chat-area");
+const inp=document.getElementById("inp");
+const sbtn=document.getElementById("sbtn");
+
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+
+function setProgress(p){$("prog").style.width=p+"%"}
+function setStep(n){
+  const labels=["","Step 1 of 4: Chat","Step 2 of 4: Assessment","Step 3 of 4: Processing","Step 4 of 4: Blueprint"];
+  $("step-lbl").textContent=labels[n]||"";
+  for(let i=1;i<=4;i++){
+    $("p"+i).className="pill w"+i+(i<n?" done":i===n?" active":"");
+  }
+}
+function scroll(){setTimeout(()=>chat.scrollTop=chat.scrollHeight,40)}
+function lock(v,ph){state.locked=v;inp.disabled=v;sbtn.disabled=v;if(ph)inp.placeholder=ph}
+
+function showSplash(){
+  const d=document.createElement("div");d.id="splash";
+  d.innerHTML=`<div class="splash-orb"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="1.8"/><path d="M3 9h18M9 21V9" fill="none" stroke="#fff" stroke-width="1.8"/></svg></div>
+  <div class="splash-h">Your <em>SaaS Blueprint</em><br>starts here</div>
+  <div class="splash-p">MetaBox is your AI co-founder. Answer a few questions and get a complete, personalized SaaS idea — ready to build.</div>
+  <div class="splash-trio">
+    <div class="trio-card"><div class="trio-icon">💬</div><strong>Just chat</strong>No forms or sign-ups</div>
+    <div class="trio-card"><div class="trio-icon">🧠</div><strong>AI-powered</strong>Tailored to your skills</div>
+    <div class="trio-card"><div class="trio-icon">🚀</div><strong>Full blueprint</strong>Ready to execute</div>
+  </div>`;
+  chat.appendChild(d);scroll();
+}
+
+let typingEl=null;
+function showTyping(){
+  typingEl=document.createElement("div");typingEl.className="msg ai";typingEl.id="typing";
+  typingEl.innerHTML=`<div class="av ai">AI</div><div class="bubble typing-inner"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  chat.appendChild(typingEl);scroll();
+}
+function hideTyping(){if(typingEl){typingEl.remove();typingEl=null}}
+
+function addAI(html){
+  const d=document.createElement("div");d.className="msg ai";
+  d.innerHTML=`<div class="av ai">AI</div><div class="bubble">${html}</div>`;
+  chat.appendChild(d);scroll();
+}
+function addUser(text){
+  const d=document.createElement("div");d.className="msg user";
+  d.innerHTML=`<div class="av user">👤</div><div class="bubble">${esc(text)}</div>`;
+  chat.appendChild(d);scroll();
+}
+async function aiMsg(html,ms){
+  showTyping();
+  await wait(ms||Math.min(650+html.length*0.95,1550));
+  hideTyping();addAI(html);
+}
+
+function removeChips(){const o=$("chips");if(o)o.remove()}
+function showChips(arr,cb){
+  removeChips();
+  if(!arr||!arr.length)return;
+  const row=document.createElement("div");row.className="chips";row.id="chips";
+  arr.forEach(l=>{const c=document.createElement("button");c.className="chip";c.textContent=l;c.onclick=()=>{row.remove();cb(l)};row.appendChild(c)});
+  chat.appendChild(row);scroll();
+}
+
+function removeTracker(){const o=$("qt");if(o)o.remove()}
+function showTracker(cur){
+  removeTracker();
+  const d=document.createElement("div");d.className="q-tracker";d.id="qt";
+  let dots="";for(let i=0;i<10;i++)dots+=`<div class="q-dot${i<cur?" done":i===cur?" cur":""}"></div>`;
+  d.innerHTML=`<div class="q-dots">${dots}</div><span>Question ${cur+1} of 10</span>`;
+  chat.appendChild(d);scroll();
+}
+
+function removeThinking(){const o=$("tk");if(o)o.remove()}
+function showThinking(msg){
+  removeThinking();
+  const d=document.createElement("div");d.className="thinking";d.id="tk";
+  d.innerHTML=`<div class="spinner"></div><div class="thinking-txt"><strong>${msg}</strong><div class="thinking-sub">Usually takes 5–10 seconds…</div></div>`;
+  chat.appendChild(d);scroll();
+}
+
+function addDivider(txt){
+  const d=document.createElement("div");d.className="divider";d.textContent=txt;chat.appendChild(d);
+}
+
+function renderBlueprint(bp){
+  addDivider("Your SaaS Blueprint");
+  const grid=document.createElement("div");grid.className="bp-grid";
+  const items=[
+    {lbl:"Your SaaS Idea",hero:true,title:bp.niche_idea,body:null,delay:0},
+    {lbl:"Problem It Solves",hero:false,title:null,body:bp.problem_statement,delay:0.1},
+    {lbl:"Who It's For",hero:false,title:null,body:bp.target_users,delay:0.2},
+    {lbl:"Core Features",hero:false,title:null,body:null,tags:bp.core_features,delay:0.3},
+    {lbl:"How You Make Money",hero:false,title:null,body:bp.monetization_model,delay:0.4},
+  ];
+  const icons=["💡","🎯","👥","⚙️","💰"];
+  items.forEach((c,i)=>{
+    const card=document.createElement("div");
+    card.className="bp-card"+(c.hero?" hero":"");
+    card.style.animationDelay=c.delay+"s";
+    let h=`<div class="bp-lbl"><span class="bp-dot"></span>${icons[i]} ${c.lbl}</div>`;
+    if(c.title)h+=`<div class="bp-title">${esc(c.title)}</div>`;
+    if(c.body)h+=`<div class="bp-body">${esc(c.body)}</div>`;
+    if(c.tags)h+=`<div class="bp-tags">${c.tags.map(t=>`<span class="bp-tag">${esc(t)}</span>`).join("")}</div>`;
+    card.innerHTML=h;grid.appendChild(card);
+  });
+  chat.appendChild(grid);scroll();
+}
+
+async function callGroq(system,user){
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+GROQ_KEY},body:JSON.stringify({model:MODEL,max_tokens:1024,messages:[{role:"system",content:system},{role:"user",content:user}]})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error?.message||"API error");
+  return d.choices[0]?.message?.content||"";
+}
+async function genJSON(prompt){
+  const raw=await callGroq("You are a SaaS blueprint generator. Respond ONLY with valid JSON, no markdown fences, no explanation.",prompt);
+  return JSON.parse(raw.replace(/```json|```/g,"").trim());
+}
+
+async function handleInput(text){
+  removeChips();addUser(text);lock(true,"Thinking…");
+
+  if(state.phase==="start"){
+    const low=text.toLowerCase().trim();
+    const noIdea=/^(no|nope|nah|not yet|help|no idea|none|idk|not sure|unsure|i need|don't|do not)/.test(low)||low.length<9;
+    if(noIdea){
+      state.phase="skills";state.qi=0;setStep(2);setProgress(12);
+      addDivider("Skills Assessment — 10 Questions");
+      await aiMsg("No worries! 😊 I'll ask you <strong>10 short questions</strong> to understand your background and find the perfect idea. Just pick an option or type your own answer!",1100);
+      showTracker(0);
+      await askQ(0);
+    } else {
+      state.idea=text;state.phase="thinking";setStep(3);setProgress(65);
+      addDivider("Building Your Blueprint");
+      await aiMsg("Love that idea! 🔥 Let me analyse it and build a <strong>complete SaaS blueprint</strong> for you. Give me a moment…",900);
+      showThinking("Crafting your personalized blueprint");
+      lock(true,"Generating blueprint…");
+      try{
+        const bp=await genJSON(`User's SaaS idea: "${text}". Return JSON with keys: niche_idea (1 sentence refined product name), problem_statement (2-3 sentences), target_users (2 sentences), core_features (array of 5 short feature names), monetization_model (2-3 sentences), intro_message (2 warm congratulatory sentences).`);
+        removeThinking();setStep(4);setProgress(100);
+        await aiMsg(bp.intro_message,700);
+        renderBlueprint(bp);state.phase="blueprint";
+        await wait(items_delay(5));
+        await aiMsg("🎉 Your blueprint is ready! Feel free to ask me anything — how to validate it, find your first customers, or what to build first.",900);
+        $("hint").textContent="Ask any follow-up question about your blueprint";
+        lock(false,"Ask a follow-up question…");
+      }catch(e){
+        removeThinking();await aiMsg("Something went wrong. Please check your connection and try again.",400);lock(false);state.phase="start";
+      }
+    }
+  } else if(state.phase==="skills"){
+    state.answers[Qs[state.qi].q]=text;state.qi++;
+    const pct=12+Math.round((state.qi/10)*58);setProgress(pct);
+    if(state.qi<10){
+      showTracker(state.qi);
+      const bri=["Got it! 👍","Nice! ✏️","Interesting! 🤔","Perfect! 💡","Noted! 📝","Great! ✅","Awesome! 🙌","Thanks! 💬","Nearly there! 🏁","One more! 🎯"];
+      await aiMsg(bri[(state.qi-1)%bri.length],500);
+      await wait(150);await askQ(state.qi);
+    } else {
+      removeTracker();state.phase="thinking";setStep(3);setProgress(78);
+      addDivider("Processing Your Profile");
+      await aiMsg("That's everything I needed! 🎉 Let me now create a <strong>personalised SaaS idea</strong> perfectly matched to your background and goals…",1000);
+      showThinking("Crafting your personalized SaaS blueprint");
+      lock(true,"Generating blueprint…");
+      try{
+        const profile=Object.entries(state.answers).map(([q,a])=>`${q}: ${a}`).join(" | ");
+        const bp=await genJSON(`User profile: ${profile}. Suggest one ideal personalized SaaS idea. Return JSON: niche_idea (1 sentence refined name), problem_statement (2-3 sentences), target_users (2 sentences), core_features (array of 5 short feature names), monetization_model (2-3 sentences), intro_message (2-3 sentences explaining why this fits them perfectly).`);
+        removeThinking();setStep(4);setProgress(100);
+        await aiMsg(bp.intro_message,700);
+        renderBlueprint(bp);state.phase="blueprint";
+        await wait(items_delay(5));
+        await aiMsg("🎉 Your personalized blueprint is ready! Ask me anything — next steps, how to validate, or how to find customers.",900);
+        $("hint").textContent="Ask any follow-up question about your blueprint";
+        lock(false,"Ask a follow-up question…");
+      }catch(e){
+        removeThinking();await aiMsg("Something went wrong. Please refresh and try again.",400);lock(false);
+      }
+    }
+  } else if(state.phase==="blueprint"){
+    try{
+      showTyping();
+      const ctx=state.idea?`SaaS idea: "${state.idea}"`:Object.entries(state.answers).map(([q,a])=>`${q}: ${a}`).join("; ");
+      const reply=await callGroq("You are a helpful SaaS mentor. Answer concisely and helpfully in 3–4 sentences max. Be warm and actionable.",`Context: ${ctx}\nUser question: ${text}`);
+      hideTyping();addAI(esc(reply));lock(false,"Ask another question…");
+    }catch(e){hideTyping();addAI("I couldn't process that. Please try again.");lock(false);}
+    return;
+  }
+  if(state.phase==="skills")lock(false,"Type or pick an option above…");
+}
+
+function items_delay(n){return n*130+350}
+
+async function askQ(idx){
+  const{q,chips}=Qs[idx];
+  await aiMsg(q,650);
+  if(chips)showChips(chips,val=>handleInput(val));
+  lock(false,chips?"Type or pick an option above…":"Share your thoughts freely…");
+}
+
+sbtn.onclick=()=>{const t=inp.value.trim();if(!t||state.locked)return;inp.value="";inp.style.height="auto";handleInput(t)};
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sbtn.click()}});
+inp.addEventListener("input",()=>{inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,108)+"px"});
+
+// boot
+(async()=>{
+  lock(true,"Starting…");
+  showSplash();
+  await wait(650);
+  await aiMsg(`👋 Welcome to <strong>MetaBox!</strong> I'm your AI co-founder.<br><br>Do you already have a SaaS idea in mind — or would you like me to help you discover the perfect one based on your skills?`,1100);
+  showChips(["Yes, I have an idea!","No, help me find one","I'm not sure yet"],val=>{
+    if(val==="Yes, I have an idea!"){
+      removeChips();lock(true);
+      addAI("Great! Describe your idea in a sentence or two — what problem does it solve?");
+      lock(false,"Describe your idea here…");
+    } else {
+      handleInput("no");
+    }
+  });
+  lock(false,"Type or pick an option above…");
+})();
+</script>
+</body>
+</html>
