@@ -179,25 +179,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ SECTION 3: HOW IT WORKS ═══ */}
+      {/* ═══ SECTION 3: THE 4-PHASE ARCHITECTURE ═══ */}
       <section className="how-section">
         <div className="section-header">
-          <span className="section-badge">How It Works</span>
-          <h2>Three steps. Zero friction.</h2>
-          <p>From napkin sketch to live product — MetaBox handles every layer.</p>
+          <span className="section-badge">The MetaBox Method</span>
+          <h2>A Strategic Four-Phase Architecture</h2>
+          <p>We don't just write code. We build a market-ready venture using the proprietary 4-Phase System.</p>
         </div>
 
-        <div className="steps-grid">
+        <div className="steps-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
           {[
-            { num: '01', title: 'Describe', desc: 'Tell MetaBox about your business idea, target customer, and budget. Our AI intake system maps the opportunity space.', icon: '💬' },
-            { num: '02', title: 'Build', desc: 'MetaBox architects the stack, writes production code, and wires up auth, payments, and analytics automatically.', icon: '🔨' },
-            { num: '03', title: 'Deploy', desc: 'One click and you\'re live. Custom domain, SSL, database — everything provisioned and ready for customers.', icon: '🚀' },
+            { num: '01', title: 'Founder Alignment', desc: 'Predictive market analysis and pain-point mapping to ensure product-market fit before a single line of code is written.', icon: '🎯' },
+            { num: '02', title: 'Anti-Bloat Blueprint', desc: 'Strict scoping that eliminates technical debt and feature creep. We build the narrowest MVP that solves the pain.', icon: '🏗️' },
+            { num: '03', title: 'Agentic Engineering', desc: 'Sophisticated AI logic synthesis. We generate the system prompts, JSON schemas, and backend handlers for your app.', icon: '🧠' },
+            { num: '04', title: 'Revenue Engine', desc: 'Complete GTM arsenal. Automated lead scoring, cold outreach sequences, and a 30-day launch schedule.', icon: '📈' },
           ].map((s, i) => (
             <div key={i} className="step-card" style={{ animationDelay: `${i * 0.15}s` }}>
               <div className="step-num">{s.num}</div>
-              <div className="step-icon">{s.icon}</div>
+              <div className="step-icon" style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>{s.icon}</div>
               <h3>{s.title}</h3>
-              <p>{s.desc}</p>
+              <p style={{ fontSize: '0.9rem', lineHeight: '1.6', opacity: 0.8 }}>{s.desc}</p>
             </div>
           ))}
         </div>

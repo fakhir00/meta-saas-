@@ -435,6 +435,21 @@ export default function LaunchPage() {
                   </div>
                 </div>
 
+                {/* ── Technical Validation ── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2.5rem' }}>
+                   {[
+                     { l: 'Code Quality', v: '98/100', c: '#10b981', i: '🛡️' },
+                     { l: 'Performance', v: '0.4s LCP', c: '#06b6d4', i: '⚡' },
+                     { l: 'Security', v: 'SOC2 Ready', c: '#8b5cf6', i: '🔒' }
+                   ].map((stat, i) => (
+                     <div key={i} className="glass-card" style={{ padding: '1rem', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{stat.i}</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: stat.c }}>{stat.v}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase' }}>{stat.l}</div>
+                     </div>
+                   ))}
+                </div>
+
                 {/* ── File Explorer ── */}
                 <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <h3 style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>

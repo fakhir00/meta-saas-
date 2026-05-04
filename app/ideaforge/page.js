@@ -150,6 +150,22 @@ function BlueprintGrid({ bp }) {
 
   return (
     <div className="if-bp-grid">
+      {/* Brand Identity Preview */}
+      <div className="if-bp-card hero" style={{ display: 'flex', gap: '20px', alignItems: 'center', background: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(139,92,246,0.1))' }}>
+         <div style={{ width: 64, height: 64, borderRadius: '14px', background: '#000', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', flexShrink: 0 }}>
+            <img 
+              src={`https://logo.clearbit.com/${bp.niche_idea.toLowerCase().replace(/\s+/g, '') + '.com'}`} 
+              onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(bp.niche_idea)}&background=06b6d4&color=fff&bold=true`; }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              alt="Brand Logo"
+            />
+         </div>
+         <div>
+            <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Suggested Identity</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f1f5f9' }}>{bp.niche_idea}</div>
+         </div>
+      </div>
+
       {items.map((c, i) => (
         <div key={i} className={`if-bp-card${c.hero ? ' hero' : ''}`} style={{ animationDelay: `${i * 0.1}s` }}>
           <div className="if-bp-lbl"><span className="if-bp-dot" />{icons[i]} {c.lbl}</div>

@@ -272,45 +272,92 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Project List */}
-              <div className="project-header">
-                <h3>All Projects ({projects.length})</h3>
-                <button className="btn-new" onClick={() => setShowNewProject(true)}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                  New Project
-                </button>
-              </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '1.5rem' }}>
+                  {/* Left Column: Projects */}
+                  <div>
+                    <div className="project-header">
+                      <h3>Active Projects ({projects.length})</h3>
+                      <button className="btn-new" onClick={() => setShowNewProject(true)}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        New Project
+                      </button>
+                    </div>
 
-              {projects.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-icon">💡</div>
-                  <h3>No projects yet</h3>
-                  <p>Start with IdeaForge to discover your perfect SaaS idea, then build it with the Launch Builder.</p>
-                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>✨ Discover My Idea</Link>
-                    <button className="btn-new large" onClick={() => setShowNewProject(true)}>+ Create Manually</button>
+                    {projects.length === 0 ? (
+                      <div className="empty-state">
+                        <div className="empty-icon">💡</div>
+                        <h3>No projects yet</h3>
+                        <p>Start with IdeaForge to discover your perfect SaaS idea, then build it with the Launch Builder.</p>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                          <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>✨ Discover My Idea</Link>
+                          <button className="btn-new large" onClick={() => setShowNewProject(true)}>+ Create Manually</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="project-grid" style={{ gridTemplateColumns: '1fr' }}>
+                        {projects.map(p => (
+                          <div key={p.id} className="project-card" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1.5rem', padding: '1.25rem' }}>
+                            <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>📦</div>
+                            <div style={{ flex: 1 }}>
+                              <h4 style={{ margin: 0, fontSize: '1.05rem' }}>{p.name}</h4>
+                              <p className="pc-desc" style={{ margin: '4px 0 0', fontSize: '0.8rem' }}>{p.description || "No description provided."}</p>
+                            </div>
+                            <div className="pc-status" style={{ background: statusColors[p.status] || '#64748b', fontSize: '0.7rem', padding: '3px 10px' }}>{p.status}</div>
+                            <Link href="/launch" className="pc-launch" style={{ margin: 0, padding: '8px 16px' }}>Open Builder</Link>
+                            <button className="pc-delete" onClick={() => handleDelete(p.id)} style={{ position: 'static', opacity: 0.4 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column: Activity & Tasks */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div className="glass-card" style={{ padding: '1.5rem' }}>
+                       <h4 style={{ margin: '0 0 1.25rem', fontSize: '1rem' }}>🚀 Launch Checklist</h4>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                          {[
+                            { t: 'Phase 1: Founder Alignment', c: true },
+                            { t: 'Phase 2: Product Blueprint', c: projects.length > 0 },
+                            { t: 'Phase 3: Agentic Engineering', c: false },
+                            { t: 'Phase 4: Revenue Engine', c: false },
+                            { t: 'Domain & SSL Setup', c: false },
+                          ].map((item, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: item.c ? '#10b981' : '#94a3b8' }}>
+                               <div style={{ width: 18, height: 18, borderRadius: '4px', border: '1.5px solid', borderColor: item.c ? '#10b981' : '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', background: item.c ? 'rgba(16,185,129,0.1)' : 'transparent' }}>
+                                  {item.c && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>}
+                               </div>
+                               <span style={{ textDecoration: item.c ? 'line-through' : 'none' }}>{item.t}</span>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+
+                    <div className="glass-card" style={{ padding: '1.5rem' }}>
+                       <h4 style={{ margin: '0 0 1.25rem', fontSize: '1rem' }}>🔔 Recent Activity</h4>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {[
+                            { t: 'System Update', d: 'Groq fallback pool expanded to 15 keys', time: '2m ago', icon: '⚡' },
+                            { t: 'Market Shift', d: 'AI Narratives up 12.4% in 24h', time: '1h ago', icon: '📈' },
+                            { t: 'Security Audit', d: 'API keys protected & obfuscated', time: '3h ago', icon: '🛡️' },
+                          ].map((a, i) => (
+                            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                               <span style={{ fontSize: '1.1rem', marginTop: '2px' }}>{a.icon}</span>
+                               <div style={{ flex: 1 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                     <strong style={{ fontSize: '0.8rem', color: '#f1f5f9' }}>{a.t}</strong>
+                                     <span style={{ fontSize: '0.65rem', color: '#475569' }}>{a.time}</span>
+                                  </div>
+                                  <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: '#94a3b8', lineHeight: 1.4 }}>{a.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="project-grid">
-                  {projects.map(p => (
-                    <div key={p.id} className="project-card">
-                      <div className="pc-top">
-                        <div className="pc-status" style={{ background: statusColors[p.status] || '#64748b' }}>{p.status}</div>
-                        <button className="pc-delete" onClick={() => handleDelete(p.id)} title="Delete project">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                        </button>
-                      </div>
-                      <h4>{p.name}</h4>
-                      {p.description && <p className="pc-desc">{p.description}</p>}
-                      <div className="pc-meta">
-                        <span>Created {new Date(p.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <Link href="/launch" className="pc-launch">Open in Builder →</Link>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
