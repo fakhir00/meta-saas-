@@ -4,6 +4,7 @@
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 
 /* ---- CSS Custom Properties ---- */
 :root {
@@ -1482,10 +1483,10 @@ textarea.input-field {
         }
         .auth-switch a { color: #60a5fa; text-decoration: none; font-weight: 600; }
         .auth-switch a:hover { text-decoration: underline; }
-         IDEAFORGE — Scoped Styles (if- prefix)
+/* ═══════════════════════════════════════════════════
+   IDEAFORGE — Scoped Styles (if- prefix)
    Light-mode chat UI for the /ideaforge route
    ═══════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 
 /* Page wrapper — override dark body */
 .if-page {
