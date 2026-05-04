@@ -102,14 +102,15 @@
   --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
   --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.08);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.12);
   
-  --gradient-card: linear-gradient(145deg, rgba(59,130,246,0.03), rgba(139,92,246,0.03));
+  --gradient-card: linear-gradient(145deg, rgba(59,130,246,0.05), rgba(139,92,246,0.05));
+  --gradient-hero: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
 }
 
 .light-mode body {
-  background: #fcfcfd;
-  color: #334155;
+  background: #f8fafc;
+  color: #1e293b;
 }
 
 .light-mode .glass-card, 
@@ -117,25 +118,53 @@
 .light-mode .project-card,
 .light-mode .step-card {
   background: #ffffff;
-  border-color: rgba(15, 23, 42, 0.08);
-  box-shadow: var(--shadow-sm);
+  border-color: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
 .light-mode .glass-card:hover,
 .light-mode .project-card:hover {
   border-color: var(--accent-blue);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.08);
+  transform: translateY(-4px);
 }
 
-.light-mode .nav-logo, 
-.light-mode .nav-link, 
-.light-mode .nav-link-auth {
+.light-mode .hero-h1 {
+  color: #0f172a;
+}
+
+.light-mode .hero-sub {
+  color: #334155;
+  font-weight: 500;
+}
+
+.light-mode .hero-badge {
+  background: rgba(16,185,129,0.1);
+  border-color: rgba(16,185,129,0.4);
+  color: #059669;
+}
+
+.light-mode .stat-pill {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.light-mode .stat-pill strong {
+  color: #2563eb;
+}
+
+.light-mode .nav-logo {
+  color: #0f172a;
+}
+
+.light-mode .nav-link {
   color: #475569;
 }
 
-.light-mode .nav-link:hover, 
-.light-mode .nav-link-auth:hover {
-  color: var(--accent-blue);
+.light-mode .nav-link:hover {
+  color: #2563eb;
 }
 
 .light-mode .nav.scrolled .nav-logo {
@@ -2217,3 +2246,23 @@ textarea.input-field {
   .if-chips { padding-left: 12px; }
 }
       
+
+/* ── Additional Light Mode Contrast Fixes ── */
+.light-mode .live-terminal {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.06) !important;
+}
+
+.light-mode .term-bar {
+  background: #f8fafc !important;
+  border-bottom-color: #f1f5f9 !important;
+}
+
+.light-mode .term-title {
+  color: #94a3b8 !important;
+}
+
+.light-mode .term-body {
+  color: #1e293b !important;
+}

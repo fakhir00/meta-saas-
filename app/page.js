@@ -41,25 +41,36 @@ function Counter({ end, suffix = '', duration = 2000 }) {
 
 /* ── Typing Terminal ── */
 function TypingTerminal() {
-  const lines = [
-    { text: '$ metabox init --blueprint "AI CRM for realtors"', color: '#94a3b8', delay: 0 },
-    { text: '✓ Industry analyzed: Real Estate', color: '#4ade80', delay: 800 },
-    { text: '✓ Architecture: Next.js + Supabase + Stripe', color: '#4ade80', delay: 1600 },
-    { text: '✓ 6 core features identified', color: '#4ade80', delay: 2400 },
-    { text: '$ metabox deploy --production', color: '#94a3b8', delay: 3200 },
-    { text: '⚡ Building frontend...  done', color: '#60a5fa', delay: 4000 },
-    { text: '⚡ Compiling API routes... done', color: '#60a5fa', delay: 4800 },
-    { text: '⚡ Provisioning database... done', color: '#60a5fa', delay: 5600 },
-    { text: '🚀 Live at → https://ai-crm.metabox.app', color: '#f472b6', delay: 6400 },
-  ];
+  const [isLight, setIsLight] = useState(false);
   const [visible, setVisible] = useState(0);
   const [ref, inView] = useInView(0.4);
+
+  useEffect(() => {
+    setIsLight(document.documentElement.classList.contains('light-mode'));
+    const observer = new MutationObserver(() => {
+      setIsLight(document.documentElement.classList.contains('light-mode'));
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+
+  const lines = [
+    { text: '$ metabox init --blueprint "AI CRM for realtors"', color: isLight ? '#475569' : '#94a3b8', delay: 0 },
+    { text: '✓ Industry analyzed: Real Estate', color: isLight ? '#059669' : '#4ade80', delay: 800 },
+    { text: '✓ Architecture: Next.js + Supabase + Stripe', color: isLight ? '#059669' : '#4ade80', delay: 1600 },
+    { text: '✓ 6 core features identified', color: isLight ? '#059669' : '#4ade80', delay: 2400 },
+    { text: '$ metabox deploy --production', color: isLight ? '#475569' : '#94a3b8', delay: 3200 },
+    { text: '⚡ Building frontend...  done', color: isLight ? '#2563eb' : '#60a5fa', delay: 4000 },
+    { text: '⚡ Compiling API routes... done', color: isLight ? '#2563eb' : '#60a5fa', delay: 4800 },
+    { text: '⚡ Provisioning database... done', color: isLight ? '#2563eb' : '#60a5fa', delay: 5600 },
+    { text: '🚀 Live at → https://ai-crm.metabox.app', color: isLight ? '#db2777' : '#f472b6', delay: 6400 },
+  ];
 
   useEffect(() => {
     if (!inView) return;
     const timers = lines.map((l, i) => setTimeout(() => setVisible(i + 1), l.delay));
     return () => timers.forEach(clearTimeout);
-  }, [inView]);
+  }, [inView, lines]);
 
   return (
     <div ref={ref} className="live-terminal">
