@@ -82,6 +82,55 @@
   --sidebar-width: 260px;
 }
 
+/* ---- Light Mode Overrides ---- */
+.light-mode {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-light: rgba(241, 245, 249, 0.6);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-accent: #3b82f6;
+
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-hover: rgba(15, 23, 42, 0.15);
+  --border-accent: rgba(59, 130, 246, 0.2);
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.light-mode .glass-card {
+  background: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+.light-mode .nav.scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.light-mode .nav-logo, 
+.light-mode .nav-link:hover, 
+.light-mode .nav-link-auth:hover {
+  color: var(--text-primary);
+}
+
+.light-mode pre {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+.light-mode .sidebar {
+  background: #ffffff;
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+}
+
 /* ---- Reset & Base ---- */
 *, *::before, *::after {
   box-sizing: border-box;
