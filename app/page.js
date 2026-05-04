@@ -222,19 +222,19 @@ export default function Home() {
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 14px', borderRadius: '100px', background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', marginBottom: '1.25rem' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em' }}>✨ New Feature</span>
             </div>
-            <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 900, color: '#f1f5f9', lineHeight: 1.15, marginBottom: '1rem' }}>Don’t have an idea yet?<br /><span style={{ background: 'linear-gradient(135deg, #a78bfa, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IdeaForge has you covered.</span></h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '2rem' }}>Answer 10 quick questions about your background and goals. Our AI co-founder will craft a <strong style={{ color: '#f1f5f9' }}>personalised SaaS blueprint</strong> — complete with features, monetization model, and target users.</p>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: '1rem' }}>Don’t have an idea yet?<br /><span style={{ background: 'linear-gradient(135deg, #a78bfa, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IdeaForge has you covered.</span></h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '2rem' }}>Answer 10 quick questions about your background and goals. Our AI co-founder will craft a <strong style={{ color: 'var(--text-primary)' }}>personalised SaaS blueprint</strong> — complete with features, monetization model, and target users.</p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 28px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 4px 20px rgba(139,92,246,0.35)', transition: 'all 0.3s' }}>✨ Find My SaaS Idea →</Link>
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[['💬','Just chat','Answer 10 conversational questions about your skills and goals.'],['🧠','AI analysis','Our model maps your profile to thousands of validated SaaS niches.'],['📋','Full blueprint','Get a complete idea with features, monetization, and a build plan.'],['🚀','Build it','Jump straight into the Launch Builder with your idea pre-loaded.']].map(([icon,title,desc],i) => (
-              <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', padding: '1rem 1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', padding: '1rem 1.25rem', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', boxShadow: 'var(--shadow-sm)' }}>
                 <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
                 <div>
-                  <strong style={{ display: 'block', color: '#f1f5f9', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{title}</strong>
-                  <span style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.5 }}>{desc}</span>
+                  <strong style={{ display: 'block', color: 'var(--text-primary)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{title}</strong>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{desc}</span>
                 </div>
               </div>
             ))}
