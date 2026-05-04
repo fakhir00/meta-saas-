@@ -21,33 +21,38 @@ export async function POST(request) {
     if (phase === 'intake') {
       prompt = `
         ${baseContext}
-        You must act as the intake analyzer. Output valid JSON containing the following structure:
+        You are the Requirement Agent for MetaBox. Your responsibility is to turn a founder's raw business idea, audience, and budget into a plain-English product requirements summary.
+        
+        Output exactly this JSON schema:
         {
           "founderFit": "A paragraph explaining why their profile fits B2B micro-SaaS",
           "pains": [
-            { "title": "Pain point name", "desc": "Detailed description of the pain and why it hurts", "severity": "Critical or High", "revenue": "Estimated $ value lost per year" },
-            { "title": "Pain point name", "desc": "Detailed description of the pain and why it hurts", "severity": "Critical or High", "revenue": "Estimated $ value lost per year" },
-            { "title": "Pain point name", "desc": "Detailed description of the pain and why it hurts", "severity": "Critical or High", "revenue": "Estimated $ value lost per year" }
+            { "title": "string", "desc": "Detailed description of the pain and why it hurts", "severity": "Critical|High", "revenue": "Estimated $ value lost per year" }
           ],
           "recommendation": "The #1 recommended Micro-SaaS concept to address the critical pain"
         }
+        
+        Use exactly 3 pains. Keep strings practical and easy to scan. No developer jargon.
         Return ONLY valid JSON. Note: If you cannot determine accurate information, fabricate convincing synthetic data strictly matching the requested structure.
       `;
     } else if (phase === 'blueprint') {
       prompt = `
         ${baseContext}
-        You must act as the technical architect. Output valid JSON outlining the strict anti-bloat blueprint for the recommended micro-SaaS.
-        Structure:
+        You are the Feature Agent for MetaBox. Your responsibility is to act as a technical architect and expand the approved feature tree into buildable feature steps.
+        
+        Output exactly this JSON schema outlining the strict anti-bloat blueprint:
         {
           "name": "Name of the App",
           "tagline": "Short tagline",
-          "architecture": { "frontend": "...", "backend": "...", "database": "...", "auth": "...", "hosting": "..." },
+          "architecture": { "frontend": "Next.js/React", "backend": "Node.js", "database": "PostgreSQL/MongoDB", "auth": "JWT/NextAuth", "hosting": "Vercel" },
           "coreFeatures": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-          "security": ["Protocol 1", "Protocol 2", "Protocol 3"],
+          "security": ["Protocol 1", "Protocol 2"],
           "mvpTimeline": "e.g. 2-4 weeks",
           "estimatedCost": "Estimated initial cost to launch"
         }
-        Return ONLY valid JSON. Keep architecture extremely simple (e.g. Node/Express backend, vanilla JS frontend to keep generation fast).
+        
+        Keep feature and step names short, practical, and easy to scan. Keep architecture extremely simple to keep generation fast.
+        Return ONLY valid JSON.
       `;
     } else if (phase === 'aiLogic') {
       prompt = `
