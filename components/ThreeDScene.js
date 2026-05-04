@@ -92,7 +92,7 @@ export default function ThreeDScene() {
           transform: 'translate(-50%, -50%)',
           width: '600px',
           height: '600px',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)',
           pointerEvents: 'none',
           borderRadius: '50%',
           filter: 'blur(40px)'
@@ -105,7 +105,7 @@ export default function ThreeDScene() {
         <pointLight position={[-4, -3, -2]} intensity={1.2} color="#6366f1" />
         <pointLight position={[3, -2, 4]} intensity={0.6} color="#ec4899" />
 
-        <Sparkles count={isLight ? 250 : 160} size={isLight ? 3 : 2} speed={0.3} color={isLight ? "#6366f1" : "#a78bfa"} opacity={isLight ? 0.6 : 0.45} scale={[10, 8, 10]} />
+        <Sparkles count={isLight ? 250 : 160} size={isLight ? 3 : 2} speed={0.3} color={isLight ? "#6366f1" : "#a78bfa"} opacity={isLight ? 0.8 : 0.45} scale={[10, 8, 10]} />
         <OrbitalCore isLight={isLight} />
       </Canvas>
     </div>
