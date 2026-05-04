@@ -66,11 +66,14 @@ function TypingTerminal() {
     { text: '🚀 Live at → https://ai-crm.metabox.app', color: isLight ? '#db2777' : '#f472b6', delay: 6400 },
   ];
 
+  const linesRef = useRef(lines);
+  useEffect(() => { linesRef.current = lines; }, [lines]);
+
   useEffect(() => {
     if (!inView) return;
-    const timers = lines.map((l, i) => setTimeout(() => setVisible(i + 1), l.delay));
+    const timers = linesRef.current.map((l, i) => setTimeout(() => setVisible(i + 1), l.delay));
     return () => timers.forEach(clearTimeout);
-  }, [inView, lines]);
+  }, [inView]);
 
   return (
     <div ref={ref} className="live-terminal">
