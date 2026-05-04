@@ -58,6 +58,75 @@ function MiniChart({ data, color, height = 50 }) {
 /* ══════════════════════════════════════════
    DASHBOARD PAGE
    ══════════════════════════════════════════ */
+/* ── Market Intel Sub-Components ── */
+function FearAndGreedWidget() {
+  const [fng, setFng] = useState({ value: 50, label: 'Neutral' });
+  useEffect(() => {
+    fetch('https://api.alternative.me/fng/')
+      .then(r => r.json())
+      .then(data => {
+        if (data.data && data.data[0]) {
+          setFng({ value: parseInt(data.data[0].value), label: data.data[0].value_classification });
+        }
+      }).catch(e => console.error('F&G Fetch Error', e));
+  }, []);
+
+  const getColor = (v) => {
+    if (v < 30) return '#ef4444';
+    if (v < 45) return '#f59e0b';
+    if (v < 55) return '#64748b';
+    if (v < 70) return '#3b82f6';
+    return '#10b981';
+  };
+
+  return (
+    <div className="glass-card" style={{ padding: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Market Sentiment</h4>
+        <span style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>LIVE</span>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '2.5rem', fontWeight: 800, color: getColor(fng.value) }}>{fng.value}</div>
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f1f5f9', marginTop: '0.2rem' }}>{fng.label}</div>
+        <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', marginTop: '1rem', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${fng.value}%`, background: getColor(fng.value), transition: '1s' }} />
+        </div>
+        <p style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.8rem' }}>Fear & Greed Index (Alternative.me API)</p>
+      </div>
+    </div>
+  );
+}
+
+function TrendingNarrativesWidget() {
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    fetch('https://api.coingecko.com/api/v3/coins/categories')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories(data.slice(0, 4));
+        }
+      }).catch(e => console.error('CoinGecko Fetch Error', e));
+  }, []);
+
+  return (
+    <div className="glass-card" style={{ padding: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+       <h4 style={{ margin: '0 0 1rem', fontSize: '0.9rem', color: '#94a3b8' }}>Hot SaaS Sectors</h4>
+       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {categories.length === 0 ? [1,2,3,4].map(i => <div key={i} style={{ height: 32, background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }} />) : categories.map((c, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#e2e8f0' }}>{c.name}</span>
+              <span style={{ fontSize: '0.75rem', color: c.market_cap_change_24h >= 0 ? '#10b981' : '#ef4444' }}>
+                {c.market_cap_change_24h >= 0 ? '▲' : '▼'} {Math.abs(c.market_cap_change_24h || 0).toFixed(1)}%
+              </span>
+            </div>
+          ))}
+       </div>
+       <p style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '1rem' }}>Global Trending Data (CoinGecko API)</p>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user, loading, logout, getProjects, createProject, deleteProject } = useAuth();
   const router = useRouter();
@@ -248,10 +317,17 @@ export default function DashboardPage() {
           {/* ═══ ANALYTICS TAB ═══ */}
           {activeTab === 'overview' && (
             <div className="fade-in">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                {/* Fear & Greed Widget */}
+                <FearAndGreedWidget />
+                {/* Trending Narratives */}
+                <TrendingNarrativesWidget />
+              </div>
+
               <div className="analytics-placeholder">
                 <div className="empty-icon">📊</div>
-                <h3>Analytics Dashboard</h3>
-                <p>Your project analytics will appear here once you have active projects generating traffic and revenue.</p>
+                <h3>Project Performance</h3>
+                <p>Detailed metrics for your individual projects will appear here once they are live and generating traffic.</p>
                 <div className="demo-stats">
                   <div className="demo-stat"><strong>$0</strong><span>MRR</span></div>
                   <div className="demo-stat"><strong>0</strong><span>Active Users</span></div>

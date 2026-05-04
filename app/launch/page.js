@@ -403,7 +403,7 @@ export default function LaunchPage() {
             ) : aiResult && (
               <div className="code-results">
                 
-                {/* ── Success Banner ── */}
+                 {/* ── Success Banner ── */}
                 <div className="glass-card" style={{ textAlign: 'center', marginBottom: '2.5rem', overflow: 'hidden', position: 'relative', borderTop: '2px solid #10b981', boxShadow: '0 10px 50px rgba(16,185,129,0.2)', padding: '3rem 2rem' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(16,185,129,0.04)' }} />
                   <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>📦</div>
@@ -411,9 +411,28 @@ export default function LaunchPage() {
                   <p style={{ color: '#94a3b8', marginBottom: '2rem', maxWidth: 520, margin: '0 auto 2rem', fontSize: '1.05rem', lineHeight: 1.6 }}>
                     The core engine generated <strong style={{ color: '#f1f5f9' }}>{Array.isArray(aiResult) ? aiResult.length : 0} files</strong> for your platform.
                   </p>
-                  <button onClick={handleDownloadZip} className="btn btn-primary btn-lg" style={{ padding: '1rem 2.5rem' }} disabled={isDownloading}>
-                    {isDownloading ? 'Compressing...' : '⬇️ Download Source (.zip)'}
-                  </button>
+                  
+                  {/* ── Brand & Identity ── */}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.3)', marginBottom: '2rem', textAlign: 'left' }}>
+                    <div style={{ width: 48, height: 48, borderRadius: '10px', background: '#000', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      <img 
+                        src={`https://logo.clearbit.com/${(blueprint?.name || 'saas').toLowerCase().replace(/\s+/g, '') + '.com'}`} 
+                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(blueprint?.name || 'S')}&background=06b6d4&color=fff&size=128&bold=true`; }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        alt="Logo"
+                      />
+                    </div>
+                    <div>
+                      <h4 style={{ color: '#fff', margin: 0, fontSize: '0.95rem' }}>{blueprint?.name || "New SaaS Project"}</h4>
+                      <p style={{ color: '#64748b', fontSize: '0.72rem', margin: '2px 0 0' }}>AI-Generated Brand Identity</p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'block' }}>
+                    <button onClick={handleDownloadZip} className="btn btn-primary btn-lg" style={{ padding: '1rem 2.5rem' }} disabled={isDownloading}>
+                      {isDownloading ? 'Compressing...' : '⬇️ Download Source (.zip)'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* ── File Explorer ── */}
