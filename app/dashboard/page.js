@@ -102,6 +102,7 @@ export default function DashboardPage() {
 
   const sidebarItems = [
     { id: 'projects', label: 'My Projects', icon: '📦' },
+    { id: 'ideaforge', label: 'IdeaForge ✨', icon: '💡' },
     { id: 'overview', label: 'Analytics', icon: '📊' },
     { id: 'ai', label: 'AI Assistant', icon: '🤖' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
@@ -155,6 +156,7 @@ export default function DashboardPage() {
             <h2>{sidebarItems.find(s => s.id === activeTab)?.icon} {sidebarItems.find(s => s.id === activeTab)?.label}</h2>
           </div>
           <div className="dash-header-right">
+            <Link href="/ideaforge" className="header-cta" style={{ marginRight: '0.5rem', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}>✨ IdeaForge</Link>
             <Link href="/launch" className="header-cta">+ New Box</Link>
           </div>
         </header>
@@ -212,10 +214,13 @@ export default function DashboardPage() {
 
               {projects.length === 0 ? (
                 <div className="empty-state">
-                  <div className="empty-icon">📦</div>
+                  <div className="empty-icon">💡</div>
                   <h3>No projects yet</h3>
-                  <p>Create your first Box to get started with MetaBox AI</p>
-                  <button className="btn-new large" onClick={() => setShowNewProject(true)}>Create Your First Project</button>
+                  <p>Start with IdeaForge to discover your perfect SaaS idea, then build it with the Launch Builder.</p>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>✨ Discover My Idea</Link>
+                    <button className="btn-new large" onClick={() => setShowNewProject(true)}>+ Create Manually</button>
+                  </div>
                 </div>
               ) : (
                 <div className="project-grid">
@@ -252,6 +257,27 @@ export default function DashboardPage() {
                   <div className="demo-stat"><strong>0</strong><span>Active Users</span></div>
                   <div className="demo-stat"><strong>0%</strong><span>Churn Rate</span></div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ IDEAFORGE TAB ═══ */}
+          {activeTab === 'ideaforge' && (
+            <div className="fade-in">
+              <div className="analytics-placeholder" style={{ gap: '1.5rem' }}>
+                <div className="empty-icon">✨</div>
+                <h3>IdeaForge — AI SaaS Idea Generator</h3>
+                <p style={{ maxWidth: 520 }}>Answer 10 quick questions and let our AI co-founder craft a personalised SaaS blueprint — complete with features, monetization model, and target users.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', width: '100%', maxWidth: 600, margin: '1rem 0' }}>
+                  {[['💬','Just chat','No forms or sign-ups'],['🧠','AI-powered','Tailored to your skills'],['🚀','Full blueprint','Ready to execute']].map(([icon,title,sub],i) => (
+                    <div key={i} style={{ padding: '1.25rem', borderRadius: '14px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>{icon}</div>
+                      <strong style={{ display: 'block', color: '#f1f5f9', fontSize: '0.85rem', marginBottom: '0.2rem' }}>{title}</strong>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{sub}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '1rem', textDecoration: 'none', boxShadow: '0 4px 20px rgba(139,92,246,0.35)' }}>✨ Launch IdeaForge →</Link>
               </div>
             </div>
           )}

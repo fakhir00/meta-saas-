@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { groqComplete } from '@/lib/groq';
 
 export async function POST(request) {
   try {
     const { messages } = await request.json();
-
-    const fallbackKey = process.env.GROQ_API_KEY || "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";
-    if (!fallbackKey) {
-      throw new Error("Missing global GROQ_API_KEY configuration.");
-    }
-
-    const groq = new Groq({ apiKey: fallbackKey });
 
     // System instruction injected invisibly to maintain context
     const systemInstruction = {
@@ -24,7 +17,7 @@ export async function POST(request) {
       content: msg.text || msg.content
     }));
 
-    const completion = await groq.chat.completions.create({
+    const completion = await groqComplete({
       messages: [systemInstruction, ...formattedMessages],
       model: "llama-3.3-70b-versatile",
       temperature: 0.8,

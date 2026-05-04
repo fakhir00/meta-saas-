@@ -1,38 +1,10 @@
 import { NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
-
-function normalizeApiKey(value) {
-  if (!value) return '';
-  return value.trim().replace(/^['"]|['"]$/g, '');
-}
-
-function resolveGroqApiKey(overrideKey = '') {
-  const candidates = [
-    overrideKey,
-    process.env.GROQ_API_KEY,
-    process.env.NEXT_PUBLIC_GROQ_API_KEY,
-    "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"
-  ];
-
-  for (const candidate of candidates) {
-    const normalized = normalizeApiKey(candidate);
-    if (normalized) return normalized;
-  }
-  return '';
-}
+import { groqComplete } from '@/lib/groq';
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { phase, answers, blueprint, apiKeyOverride } = body;
-
-    const headerApiKey = request.headers.get('x-groq-api-key') || '';
-    const apiKey = resolveGroqApiKey(apiKeyOverride || headerApiKey);
-    if (!apiKey) {
-      throw new Error('Missing Groq API key. Set GROQ_API_KEY in your environment.');
-    }
-
-    const groq = new Groq({ apiKey });
+    const { phase, answers, blueprint } = body;
 
     const baseContext = `
       You are an elite Senior AI Systems Architect & Venture Builder (MetaBox platform).
@@ -162,36 +134,23 @@ export async function POST(request) {
     }
 
     let text = "";
-    try {
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are a specialized JSON and text structure generator. You only return valid JSON. Do not return conversational text."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        response_format: { type: "json_object" },
-      });
-      
-      text = completion.choices[0]?.message?.content || "";
-    } catch (apiError) {
-      console.error(`Groq API Error:`, apiError?.message || apiError);
-      const msg = apiError?.message || '';
-      
-      if (msg.includes("401") || apiError?.status === 401) {
-        throw new Error("Unauthorized API Key (401). Please update your GROQ_API_KEY.");
-      }
-      if (msg.includes("429") || apiError?.status === 429) {
-        throw new Error("Rate Limit Exceeded (429). The Groq API is busy or ratelimited — please retry.");
-      }
-      throw new Error(apiError?.message || "AI Generation Fault");
-    }
+    const completion = await groqComplete({
+      messages: [
+        {
+          role: "system",
+          content: "You are a specialized JSON and text structure generator. You only return valid JSON. Do not return conversational text."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.7,
+      response_format: { type: "json_object" },
+    });
+    
+    text = completion.choices[0]?.message?.content || "";
     
     // Clean up markdown wrapping if present
     if (text.startsWith('```json')) {

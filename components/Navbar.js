@@ -28,6 +28,7 @@ export default function Navbar() {
           <div className="nav-links">
             <Link href="/" className="nav-link">Home</Link>
             <Link href="/launch" className="nav-link">Launch</Link>
+            <Link href="/ideaforge" className="nav-link">IdeaForge ✨</Link>
             <Link href="#pricing" className="nav-link">Pricing</Link>
             <Link href="/about" className="nav-link">About</Link>
           </div>

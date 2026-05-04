@@ -154,10 +154,9 @@ export default function Home() {
               Start Building Free
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
-            <button className="cta-secondary" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Watch it Build
-            </button>
+            <Link href="/ideaforge" className="cta-secondary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <span>✨</span> Discover My Idea
+            </Link>
           </div>
 
           <div className="hero-stats">
@@ -212,6 +211,34 @@ export default function Home() {
           <p>This is what happens when you hit "Build". No smoke and mirrors.</p>
         </div>
         <TypingTerminal />
+      </section>
+
+      {/* ═══ IDEAFORGE SPOTLIGHT ═══ */}
+      <section style={{ padding: '5rem 1.5rem', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ borderRadius: '28px', background: 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(236,72,153,0.08))', border: '1px solid rgba(139,92,246,0.2)', padding: '3.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%)', pointerEvents: 'none' }} />
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 14px', borderRadius: '100px', background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', marginBottom: '1.25rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em' }}>✨ New Feature</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 900, color: '#f1f5f9', lineHeight: 1.15, marginBottom: '1rem' }}>Don’t have an idea yet?<br /><span style={{ background: 'linear-gradient(135deg, #a78bfa, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IdeaForge has you covered.</span></h2>
+            <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '2rem' }}>Answer 10 quick questions about your background and goals. Our AI co-founder will craft a <strong style={{ color: '#f1f5f9' }}>personalised SaaS blueprint</strong> — complete with features, monetization model, and target users.</p>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <Link href="/ideaforge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 28px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 4px 20px rgba(139,92,246,0.35)', transition: 'all 0.3s' }}>✨ Find My SaaS Idea →</Link>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {[['💬','Just chat','Answer 10 conversational questions about your skills and goals.'],['🧠','AI analysis','Our model maps your profile to thousands of validated SaaS niches.'],['📋','Full blueprint','Get a complete idea with features, monetization, and a build plan.'],['🚀','Build it','Jump straight into the Launch Builder with your idea pre-loaded.']].map(([icon,title,desc],i) => (
+              <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', padding: '1rem 1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
+                <div>
+                  <strong style={{ display: 'block', color: '#f1f5f9', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{title}</strong>
+                  <span style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.5 }}>{desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ═══ SECTION 5: FEATURE BENTO GRID ═══ */}
