@@ -50,7 +50,7 @@ export default function LaunchPage() {
   const [savedBlueprint, setSavedBlueprint] = useState(null);
   const [generatedCode, setGeneratedCode] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [viewMode, setViewMode] = useState('preview'); // 'preview' or 'code'
+
 
   const contentRef = useRef(null);
 
@@ -165,33 +165,7 @@ export default function LaunchPage() {
     }
   };
 
-  const generatePreviewHtml = () => {
-    if (!Array.isArray(generatedCode)) return '';
-    let htmlContent = generatedCode.find(f => f.filename.endsWith('.html'))?.content || '<div style="color:white;text-align:center;padding:50px;"><h2>App Structure Missing HTML file</h2></div>';
-    const cssContent = generatedCode.find(f => f.filename.endsWith('.css'))?.content || '';
-    const jsContent = generatedCode.find(f => f.filename.endsWith('.js') && !f.filename.includes('server'))?.content || '';
 
-    if (cssContent) {
-      if (htmlContent.includes('<link ')) {
-         htmlContent = htmlContent.replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/i, `<style>${cssContent}</style>`);
-      } else if (htmlContent.includes('</head>')) {
-         htmlContent = htmlContent.replace('</head>', `<style>${cssContent}</style></head>`);
-      } else {
-         htmlContent = `<style>${cssContent}</style>${htmlContent}`;
-      }
-    }
-
-    if (jsContent) {
-      if (htmlContent.includes('<script ')) {
-         htmlContent = htmlContent.replace(/<script[^>]*src=["'][^"']*app\.js[^"']*["'][^>]*><\/script>/i, `<script>${jsContent}</script>`);
-      } else if (htmlContent.includes('</body>')) {
-         htmlContent = htmlContent.replace('</body>', `<script>${jsContent}</script></body>`);
-      } else {
-         htmlContent += `<script>${jsContent}</script>`;
-      }
-    }
-    return htmlContent;
-  };
 
   return (
     <div className="launch-page">
@@ -429,71 +403,59 @@ export default function LaunchPage() {
             ) : aiResult && (
               <div className="code-results">
                 
-                <div className="glass-card text-center mb-10 overflow-hidden relative border-t-2 border-t-green-500 shadow-[0_10px_50px_rgba(16,185,129,0.3)]">
-                  <div className="absolute inset-0 bg-green-500/5 mix-blend-overlay"></div>
-                  <div className="text-6xl mb-4">📦</div>
-                  <h2 className="text-4xl font-bold mb-4 text-green-500 drop-shadow-md">System Synthesis Complete</h2>
-                  <p className="text-gray-300 mb-8 max-w-xl mx-auto text-lg">
-                    The core engine has successfully generated {aiResult.length || 0} secure files to initialize your platform.
+                {/* ── Success Banner ── */}
+                <div className="glass-card" style={{ textAlign: 'center', marginBottom: '2.5rem', overflow: 'hidden', position: 'relative', borderTop: '2px solid #10b981', boxShadow: '0 10px 50px rgba(16,185,129,0.2)', padding: '3rem 2rem' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(16,185,129,0.04)' }} />
+                  <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>📦</div>
+                  <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginBottom: '1rem' }}>System Synthesis Complete</h2>
+                  <p style={{ color: '#94a3b8', marginBottom: '2rem', maxWidth: 520, margin: '0 auto 2rem', fontSize: '1.05rem', lineHeight: 1.6 }}>
+                    The core engine generated <strong style={{ color: '#f1f5f9' }}>{Array.isArray(aiResult) ? aiResult.length : 0} files</strong> for your platform.
                   </p>
-                  
-                  <div className="flex justify-center gap-4">
-                    <button onClick={handleDownloadZip} className="btn py-4 px-8 text-white rounded font-bold shadow-lg" style={{ background: 'var(--accent-blue)', border: 'none' }} disabled={isDownloading}>
-                      {isDownloading ? 'Compressing Package...' : '⬇️ Download Compiled Source (.zip)'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
-                  <button 
-                    onClick={() => setViewMode('preview')}
-                    className={`btn px-6 py-2 rounded-full font-bold transition-all ${viewMode === 'preview' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500' : 'bg-transparent text-gray-400 border border-transparent hover:text-white'}`}
-                  >
-                    🚀 Live Preview
-                  </button>
-                  <button 
-                    onClick={() => setViewMode('code')}
-                    className={`btn px-6 py-2 rounded-full font-bold transition-all ${viewMode === 'code' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500' : 'bg-transparent text-gray-400 border border-transparent hover:text-white'}`}
-                  >
-                    💻 Source Code
+                  <button onClick={handleDownloadZip} className="btn btn-primary btn-lg" style={{ padding: '1rem 2.5rem' }} disabled={isDownloading}>
+                    {isDownloading ? 'Compressing...' : '⬇️ Download Source (.zip)'}
                   </button>
                 </div>
 
-                {viewMode === 'preview' ? (
-                  <div className="preview-container glass-card w-full mb-10 p-0 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]" style={{ height: '70vh', borderRadius: '12px' }}>
-                    <div className="preview-header bg-[#1e1e24] px-4 py-2 border-b border-white/10 flex items-center gap-2">
-                        <div className="flex gap-2">
-                           <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                           <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                {/* ── File Explorer ── */}
+                <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h3 style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                    Generated Source Code
+                  </h3>
+                  <span style={{ fontSize: '0.8rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>{Array.isArray(aiResult) ? aiResult.length : 0} files</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {Array.isArray(aiResult) && aiResult.map((file, i) => {
+                    const ext = file.filename.split('.').pop();
+                    const langColors = { js: '#f59e0b', json: '#10b981', html: '#ec4899', css: '#8b5cf6', md: '#3b82f6', py: '#06b6d4' };
+                    const dotColor = langColors[ext] || '#64748b';
+                    return (
+                      <div key={i} className="glass-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1.25rem', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ width: 10, height: 10, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#e2e8f0', letterSpacing: '0.02em' }}>{file.filename}</span>
+                            <span style={{ fontSize: '0.7rem', color: '#475569', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>{ext}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <span style={{ fontSize: '0.72rem', color: '#475569', fontFamily: 'var(--font-mono)' }}>{file.content?.length || 0} chars</span>
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(file.content); }}
+                              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '4px 10px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: '0.2s' }}
+                              onMouseOver={e => { e.target.style.color = '#60a5fa'; e.target.style.borderColor = 'rgba(59,130,246,0.3)'; }}
+                              onMouseOut={e => { e.target.style.color = '#94a3b8'; e.target.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                            >Copy</button>
+                          </div>
                         </div>
-                        <div className="mx-auto text-xs font-mono text-gray-500 uppercase tracking-widest">{savedBlueprint?.name || 'SaaS Application'} // LIVE DEMO</div>
-                    </div>
-                    <iframe 
-                      title="SaaS Preview"
-                      srcDoc={generatePreviewHtml()}
-                      className="w-full h-full bg-white border-0"
-                      sandbox="allow-scripts allow-same-origin"
-                    />
-                  </div>
-                ) : (
-                  <div className="files-grid grid gap-6">
-                    {Array.isArray(aiResult) && aiResult.map((file, i) => (
-                      <div key={i} className="glass-card code-card" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <div className="code-header bg-[#0a0a0f] border-b border-white/5 py-3 px-4 flex gap-2 items-center">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-                          <span className="font-mono text-sm text-cyan-300 tracking-wider">{file.filename}</span>
-                        </div>
-                        <pre className="code-block max-h-[400px] overflow-y-auto font-mono text-[11px] p-6 bg-[#040406] text-gray-300">
-                          {file.content}
-                        </pre>
+                        <pre style={{ padding: '1.25rem', margin: 0, background: '#040408', color: '#c9d1d9', fontSize: '0.78rem', lineHeight: 1.7, fontFamily: 'var(--font-mono)', overflowX: 'auto', maxHeight: 420, overflowY: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{file.content}</pre>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    );
+                  })}
+                </div>
 
-                <div className="mt-12 text-center pb-12">
-                  <Link href="/dashboard" className="inline-block py-4 px-8 text-sm uppercase tracking-widest text-cyan-500 font-bold hover:text-cyan-400 hover:tracking-[0.15em] transition-all duration-300 border border-cyan-500/30 rounded-full hover:bg-cyan-500/10">
+                <div style={{ marginTop: '3rem', textAlign: 'center', paddingBottom: '3rem' }}>
+                  <Link href="/dashboard" style={{ display: 'inline-block', padding: '1rem 2.5rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#06b6d4', fontWeight: 700, textDecoration: 'none', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '100px', transition: 'all 0.3s' }}>
                     Access System Dashboard →
                   </Link>
                 </div>
