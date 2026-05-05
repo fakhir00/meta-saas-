@@ -271,8 +271,9 @@ export default function MetaBoxPage() {
         setProgress(12);
         addItem({ type: 'divider', text: 'Skills Assessment — 10 Questions' });
         await showTypingThenAI('No worries! 😊 I\'ll ask you <strong>10 short questions</strong> to understand your background and find the perfect idea. Just pick an option or type your own answer!', 1100);
-        setTracker(0);
-        await askQuestion(0);
+        await showTypingThenAI('Alternatively, I can <strong>scan Reddit</strong> right now to find real problems being discussed in your target industry. What would you prefer?', 800);
+        setChips(['Answer Questions', 'Scan Reddit for Problems']);
+        setPhase('choose_path');
       } else {
         setIdea(text);
         ideaRef.current = text;
@@ -394,10 +395,58 @@ export default function MetaBoxPage() {
       lock(true);
       addItem({ type: 'ai', html: 'Great! Describe your idea in a sentence or two — what problem does it solve?' });
       lock(false, 'Describe your idea here…');
+    } else if (phaseRef.current === 'choose_path' && val === 'Scan Reddit for Problems') {
+      setChips(null);
+      handleRedditScan();
+    } else if (phaseRef.current === 'choose_path' && val === 'Answer Questions') {
+      setChips(null);
+      setPhase('skills');
+      setTracker(0);
+      askQuestion(0);
+    } else if (phaseRef.current === 'reddit_results') {
+       handleInput(val);
     } else {
       handleInput(val === "I'm not sure yet" ? 'no' : val === 'No, help me find one' ? 'no' : val);
     }
-  }, [addItem, lock, handleInput]);
+  }, [addItem, lock, handleInput, askQuestion]);
+
+  const handleRedditScan = async () => {
+    setPhase('thinking');
+    setStep(3);
+    setProgress(35);
+    addItem({ type: 'divider', text: 'Reddit Pain Point Hunter' });
+    await showTypingThenAI('Scanning subreddits for real-world frustrations and tool requests...', 1000);
+    setThinkingMsg('Hunting for problems on Reddit');
+    
+    try {
+      const res = await fetch('/api/reddit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industry: answersRef.current['Which field excites you the most?'] || 'SaaS' })
+      });
+      const data = await res.json();
+      
+      setThinkingMsg(null);
+      if (data.problems && data.problems.length > 0) {
+        await showTypingThenAI('I found some high-intent problems being discussed right now! 🔍 Which one looks most interesting to you?', 800);
+        setChips(data.problems.map(p => p.title.substring(0, 50) + '...'));
+        setPhase('reddit_results');
+        setStep(2);
+        setProgress(60);
+      } else {
+        await showTypingThenAI('I couldn\'t find any specific problems on Reddit for that niche right now. Let\'s stick to the questions!', 800);
+        setPhase('skills');
+        setTracker(0);
+        askQuestion(0);
+      }
+    } catch (err) {
+      setThinkingMsg(null);
+      await showTypingThenAI('Reddit scan failed. Falling back to the assessment questions!', 600);
+      setPhase('skills');
+      setTracker(0);
+      askQuestion(0);
+    }
+  };
 
   /* ── Send button / Enter ── */
   const handleSend = () => {
